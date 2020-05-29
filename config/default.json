@@ -1,0 +1,4 @@
+{
+    "mongoURI": "mongodb+srv://myproject:myproject@chaalk-alhdt.mongodb.net/test?retryWrites=true&w=majority",
+    "jwtSecret": "FYPCHAALK"
+}
