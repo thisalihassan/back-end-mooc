@@ -12,16 +12,12 @@ const Token = require("../../models/Token");
 router.post(
   "/",
   [
-    check("name", "Name is required")
-      .not()
-      .isEmpty(),
+    check("name", "Name is required").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
-    check("roll", "Roll is required")
-      .not()
-      .isEmpty(),
+    check("roll", "Roll is required").not().isEmpty(),
     check("password", "Password with length of min 6 charachters").isLength({
-      min: 8
-    })
+      min: 8,
+    }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -46,7 +42,7 @@ router.post(
         email,
         roll,
         avatar,
-        password
+        password,
       });
 
       //Encrypt Password
@@ -54,7 +50,7 @@ router.post(
       user.password = await bcrypt.hash(password, salt);
       //await user.save();
       // Create a verification token for this user
-      user.save(function(err) {
+      user.save(function (err) {
         if (err) {
           return res.status(500).send({ msg: err.message });
         }
@@ -62,11 +58,11 @@ router.post(
         // Create a verification token for this user
         var token = new Token({
           _userId: user._id,
-          token: crypto.randomBytes(16).toString("hex")
+          token: crypto.randomBytes(16).toString("hex"),
         });
 
         // Save the verification token
-        token.save(function(err) {
+        token.save(function (err) {
           if (err) {
             return res.status(500).send({ msg: err.message });
           }
@@ -77,12 +73,12 @@ router.post(
               "836527539897-kq0bmenlq2di41hl4jqu9hvsbc2ivrep.apps.googleusercontent.com",
             clientSecret: "yBhlDxp9uPUR9fhA9pfnSsvB",
             refreshToken:
-              "1//04uXNYt2b4UJ5CgYIARAAGAQSNwF-L9IrXL0om-bzMbXvMW8McoVay1XnnTm3WZZQBVCuk7EWkyqzczbHrvCwxqVaxn8DuTQRZOw"
+              "1//04uXNYt2b4UJ5CgYIARAAGAQSNwF-L9IrXL0om-bzMbXvMW8McoVay1XnnTm3WZZQBVCuk7EWkyqzczbHrvCwxqVaxn8DuTQRZOw",
           };
           // Send the email
           var transporter = nodemailer.createTransport({
             service: "gmail",
-            auth: gmailAuth
+            auth: gmailAuth,
           });
           var mailOptions = {
             from: "MOOC <buzilightyear@gmail.com>",
@@ -90,13 +86,13 @@ router.post(
             subject: "Account Verification Token",
             text:
               "Hello,\n\n" +
-              "Please verify your account by clicking the link: \nhttp://localhost:3000/conformation/?id=" +
+              "Please verify your account by clicking the link: \nhttps://moocfyp.herokuapp.com/conformation/?id=" +
               user._id +
               "\n\nYour Token: " +
               token.token +
-              "\n"
+              "\n",
           };
-          transporter.sendMail(mailOptions, function(err) {
+          transporter.sendMail(mailOptions, function (err) {
             if (err) {
               return res.status(500).send({ msghere: err.message });
             }

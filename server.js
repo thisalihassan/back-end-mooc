@@ -4,7 +4,12 @@ const app = express();
 const path = require("path");
 const mime = require("mime");
 const fs = require("fs");
-
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: "mooc",
+  api_key: "265854168759756",
+  api_secret: "eSdb4VE70MLDyUXw3Pv9f7abuPY",
+});
 connectDB();
 const {
   addUser,
@@ -199,7 +204,7 @@ app.get("/avivideo/:name", function (req, res) {
 
 const PORT = process.env.PORT || 5000;
 //app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-
+console.log(PORT);
 //const app2 = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
