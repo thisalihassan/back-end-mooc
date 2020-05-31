@@ -22,7 +22,7 @@ router.post("/", [auth], async (req, res) => {
     courseContent,
     preReq,
     tags,
-    category
+    category,
   } = req.body;
 
   //Built Profile object
@@ -37,7 +37,7 @@ router.post("/", [auth], async (req, res) => {
   if (outcome) courseFields.outcome = outcome;
   if (courseContent) courseFields.courseContent = courseContent;
   if (preReq) courseFields.preReq = preReq;
-  if(category) courseFields.category = category;
+  if (category) courseFields.category = category;
   try {
     if (req.body.id) {
       let course = await Courses.findOneAndUpdate(
@@ -95,18 +95,20 @@ router.post("/uploadFiles", [auth], async (req, res) => {
 
     if (!files) {
       files = new Files({
-        course: course
+        course: course,
       });
       files.lecturefiles.push({
         files: req.body.files,
-        lecture: req.body.lecture
+        fileNames: req.body.fileNames,
+        lecture: req.body.lecture,
       });
       await files.save();
       return res.json(files);
     }
     files.lecturefiles.push({
       files: req.body.files,
-      lecture: req.body.lecture
+      fileNames: req.body.fileNames,
+      lecture: req.body.lecture,
     });
     await files.save();
     return res.json(files);
@@ -122,9 +124,9 @@ router.post("/EditFiles", [auth], async (req, res) => {
       {
         lecturefiles: {
           $elemMatch: {
-            _id: req.body.id
-          }
-        }
+            _id: req.body.id,
+          },
+        },
       }
     );
     if (files.lecturefiles[0].files.length === 1) {
@@ -134,7 +136,7 @@ router.post("/EditFiles", [auth], async (req, res) => {
       return res.json(files);
     }
 
-    const filtered = files.lecturefiles[0].files.filter(function(
+    const filtered = files.lecturefiles[0].files.filter(function (
       value,
       index,
       arr
@@ -145,8 +147,8 @@ router.post("/EditFiles", [auth], async (req, res) => {
       { "lecturefiles._id": req.body.id },
       {
         $set: {
-          "lecturefiles.$.files": filtered
-        }
+          "lecturefiles.$.files": filtered,
+        },
       },
       { new: true }
     );
@@ -163,9 +165,9 @@ router.post("/editLecture", [auth], async (req, res) => {
       {
         lecturefiles: {
           $elemMatch: {
-            _id: req.body.id
-          }
-        }
+            _id: req.body.id,
+          },
+        },
       }
     );
     if (req.body.check) {
@@ -176,8 +178,8 @@ router.post("/editLecture", [auth], async (req, res) => {
       { "lecturefiles._id": req.body.id },
       {
         $set: {
-          "lecturefiles.$.lecture": req.body.lecture
-        }
+          "lecturefiles.$.lecture": req.body.lecture,
+        },
       },
       { new: true }
     );
@@ -206,7 +208,7 @@ router.post("/getcourses", [auth], async (req, res) => {
   try {
     const courses = await Courses.find({
       user: req.body.id,
-      Approval: "Active"
+      Approval: "Active",
     });
     return res.json(courses);
   } catch (err) {
@@ -219,7 +221,7 @@ router.post("/myourses", [auth], async (req, res) => {
   try {
     const courses = await Courses.find({
       user: req.user.id,
-      Approval: "Active"
+      Approval: "Active",
     });
     return res.json(courses);
   } catch (err) {
@@ -253,7 +255,7 @@ router.post("/active", [auth], async (req, res) => {
 router.post("/mycourse", [auth], async (req, res) => {
   try {
     const courses = await Courses.findById({
-      _id: req.body.id
+      _id: req.body.id,
     });
     return res.json(courses);
   } catch (err) {
@@ -282,21 +284,21 @@ router.get("/remove/:id", [auth], async (req, res) => {
   }
   try {
     let anounce = await Anouncement.findOne({
-      "anouncement._id": req.params.id
+      "anouncement._id": req.params.id,
     });
     let notify = await Notification.findOne({
-      "notification.anouncements": req.params.id
+      "notification.anouncements": req.params.id,
     }).select({
       notification: {
         $elemMatch: {
-          anouncements: req.params.id
-        }
-      }
+          anouncements: req.params.id,
+        },
+      },
     });
     if (notify) {
       const id = notify.notification[0]._id;
       notify = await Notification.findOne({
-        "notification._id": id
+        "notification._id": id,
       });
       notify.notification.pull({ _id: id });
       await notify.save();
@@ -306,7 +308,7 @@ router.get("/remove/:id", [auth], async (req, res) => {
     if (anounce) {
       if (anounce.anouncement.length === 1) {
         await Anouncement.findOneAndRemove({
-          "anouncement._id": req.params.id
+          "anouncement._id": req.params.id,
         });
         return res.json({ msg: "Anouncement deleted" });
       }
@@ -329,18 +331,18 @@ router.post("/edit/:id", [auth], async (req, res) => {
   try {
     const { description } = req.body;
     let notify = await Notification.findOne({
-      "notification.anouncements": req.params.id
+      "notification.anouncements": req.params.id,
     }).select({
       notification: {
         $elemMatch: {
-          anouncements: req.params.id
-        }
-      }
+          anouncements: req.params.id,
+        },
+      },
     });
     if (notify) {
       const id = notify.notification[0]._id;
       notify = await Notification.findOne({
-        "notification._id": id
+        "notification._id": id,
       });
       notify.notification.pull({ _id: id });
       await notify.save();
@@ -349,19 +351,19 @@ router.post("/edit/:id", [auth], async (req, res) => {
       { "anouncement._id": req.params.id },
       {
         $set: {
-          "anouncement.$.description": description
-        }
+          "anouncement.$.description": description,
+        },
       },
       { new: true }
     );
     assign = await Anouncement.findOne({
-      "anouncement._id": req.params.id
+      "anouncement._id": req.params.id,
     }).select({
       anouncement: {
         $elemMatch: {
-          _id: req.params.id
-        }
-      }
+          _id: req.params.id,
+        },
+      },
     });
     return res.json(assign.anouncement[0]);
   } catch (err) {
@@ -378,14 +380,14 @@ router.post("/getanouncement/:id", [auth], async (req, res) => {
 
   try {
     let assign = await Anouncement.findOne({
-      "anouncement._id": req.params.id
+      "anouncement._id": req.params.id,
     })
       .select({
         anouncement: {
           $elemMatch: {
-            _id: req.params.id
-          }
-        }
+            _id: req.params.id,
+          },
+        },
       })
       .populate("course", ["name"]);
     return res.json(assign);
@@ -400,7 +402,7 @@ router.post("/addanouncement", [auth], async (req, res) => {
     const { course, description } = req.body;
     let anounce = await Anouncement.findOne({
       user: req.user.id,
-      course: course
+      course: course,
     });
     const anouncement = {};
     anouncement.description = description;
@@ -436,7 +438,7 @@ router.post("/search", [auth], async (req, res) => {
   try {
     let search = await Courses.find({
       Approval: { $ne: "Pending" },
-      name: { $regex: searchItem, $options: "i" }
+      name: { $regex: searchItem, $options: "i" },
     });
     if (!search) {
       return res.status(400).json({ errors: [{ msg: "No search found" }] });
@@ -444,12 +446,12 @@ router.post("/search", [auth], async (req, res) => {
     const totalPage = search.length / perPage;
     search = await Courses.find({
       Approval: { $ne: "Pending" },
-      name: { $regex: searchItem, $options: "i" }
+      name: { $regex: searchItem, $options: "i" },
     })
       .limit(perPage)
       .skip(perPage * cPage)
       .sort({
-        name: "asc"
+        name: "asc",
       });
     return res.json({ search, totalPage });
   } catch (err) {
@@ -467,31 +469,31 @@ router.post("/getanounce", [auth], async (req, res) => {
     const cPage = currentPage - 1;
     if (roll === "student") {
       let anounce = await Anouncement.find({
-        course: { $in: course }
+        course: { $in: course },
       });
       const totalPage = anounce.length;
       anounce = await Anouncement.find({
-        course: { $in: course }
+        course: { $in: course },
       })
         .limit(perPage)
         .skip(perPage * cPage)
         .sort({
-          date: "desc"
+          date: "desc",
         })
         .populate("course", ["name"]);
       return res.json({ anounce, totalPage });
     } else {
       let anounce = await Anouncement.find({
-        user: req.user.id
+        user: req.user.id,
       });
       const totalPage = anounce.length;
       anounce = await Anouncement.find({
-        user: req.user.id
+        user: req.user.id,
       })
         .limit(perPage)
         .skip(perPage * cPage)
         .sort({
-          date: "desc"
+          date: "desc",
         })
         .populate("course", ["name"]);
       return res.json({ anounce, totalPage });

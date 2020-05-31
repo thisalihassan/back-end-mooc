@@ -54,7 +54,7 @@ router.post(
   "/",
   [
     check("email", "Please include a valid email").isEmail(),
-    check("password", "Password is required").exists()
+    check("password", "Password is required").exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -82,14 +82,14 @@ router.post(
 
       const payload = {
         user: {
-          id: user.id
-        }
+          id: user.id,
+        },
       };
       // Make sure the user has been verified
       if (!user.isVerified)
         return res.status(401).send({
           type: "not-verified",
-          msg: "Your account has not been verified."
+          msg: "Your account has not been verified.",
         });
 
       jwt.sign(
@@ -114,13 +114,13 @@ router.post("/avatar", [auth], async (req, res) => {
   }
 
   let { avatar } = req.body;
-
   //Built Profile object
 
   if (avatar) {
     avatar = avatar;
   } else {
-    avatar = "default.png";
+    avatar =
+      "https://res.cloudinary.com/mooc/image/upload/v1590922028/profile/2020-05-31T10:47:02.070Z.jpg";
   }
   try {
     let profile = await User.findById(req.user.id);
@@ -141,7 +141,7 @@ router.post(
   "/confirmation",
   [
     // check("id", "Please include id").exists(),
-    check("token", "Token cannot be blank").exists()
+    check("token", "Token cannot be blank").exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -153,16 +153,16 @@ router.post(
       mytoken = req.body.token;
       myid = req.body.id;
 
-      Token.findOne({ token: mytoken }, function(err, token) {
+      Token.findOne({ token: mytoken }, function (err, token) {
         if (!token)
           return res.status(400).send({
             type: "not-verified",
             msg:
-              "We were unable to find a valid token. Your token may have expired."
+              "We were unable to find a valid token. Your token may have expired.",
           });
 
         // If we found a token, find a matching user
-        User.findOne({ _id: token._userId, _id: myid }, function(err, user) {
+        User.findOne({ _id: token._userId, _id: myid }, function (err, user) {
           if (!user)
             return res
               .status(400)
@@ -170,18 +170,18 @@ router.post(
           if (user.isVerified)
             return res.status(400).send({
               type: "already-verified",
-              msg: "This user has already been verified."
+              msg: "This user has already been verified.",
             });
 
           // Verify and save the user
           user.isVerified = true;
-          user.save(function(err) {
+          user.save(function (err) {
             if (err) {
               return res.status(500).send({ msg: err.message });
             }
             const profile = new Profile({ user: user._id });
             //added something risky
-            profile.save(function(err) {
+            profile.save(function (err) {
               if (err) {
                 return res.status(500).send({ msg: err.message });
               }
@@ -189,8 +189,8 @@ router.post(
 
             const payload = {
               user: {
-                id: user.id
-              }
+                id: user.id,
+              },
             };
             jwt.sign(
               payload,
@@ -217,8 +217,8 @@ router.post(
     check("email", "Please include a valid email").isEmail(),
     check("token", "Token cannot be blank").exists(),
     check("password", "Password with length of min 8 charachters").isLength({
-      min: 8
-    })
+      min: 8,
+    }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -232,30 +232,30 @@ router.post(
       password = req.body.password;
       const salt = await bcrypt.genSalt(10);
       mypassword = await bcrypt.hash(password, salt);
-      Token.findOne({ token: mytoken }, function(err, token) {
+      Token.findOne({ token: mytoken }, function (err, token) {
         if (!token)
           return res.status(400).send({
             type: "not-verified",
             msg:
-              "We were unable to find a valid token. Your token may have expired."
+              "We were unable to find a valid token. Your token may have expired.",
           });
 
         // If we found a token, find a matching user
-        User.findOne({ _id: token._userId, email: myid }, function(err, user) {
+        User.findOne({ _id: token._userId, email: myid }, function (err, user) {
           if (!user)
             return res
               .status(400)
               .send({ msg: "We were unable to find a user for this token." });
 
           user.password = mypassword;
-          user.save(function(err) {
+          user.save(function (err) {
             if (err) {
               return res.status(500).send({ msg: err.message });
             }
             const payload = {
               user: {
-                id: user.id
-              }
+                id: user.id,
+              },
             };
             jwt.sign(
               payload,
@@ -287,7 +287,7 @@ router.post(
 
     try {
       //See if user exists
-      User.findOne({ email: req.body.email }, function(err, user) {
+      User.findOne({ email: req.body.email }, function (err, user) {
         console.log(user);
 
         if (!user)
@@ -298,11 +298,11 @@ router.post(
         // Create a verification token, save it, and send email
         var token = new Token({
           _userId: user._id,
-          token: crypto.randomBytes(16).toString("hex")
+          token: crypto.randomBytes(16).toString("hex"),
         });
         console.log(token);
         // Save the token
-        token.save(function(err) {
+        token.save(function (err) {
           if (err) {
             return res.status(500).send({ msg: err.message });
           }
@@ -315,12 +315,12 @@ router.post(
               "836527539897-kq0bmenlq2di41hl4jqu9hvsbc2ivrep.apps.googleusercontent.com",
             clientSecret: "yBhlDxp9uPUR9fhA9pfnSsvB",
             refreshToken:
-              "1//04uXNYt2b4UJ5CgYIARAAGAQSNwF-L9IrXL0om-bzMbXvMW8McoVay1XnnTm3WZZQBVCuk7EWkyqzczbHrvCwxqVaxn8DuTQRZOw"
+              "1//04uXNYt2b4UJ5CgYIARAAGAQSNwF-L9IrXL0om-bzMbXvMW8McoVay1XnnTm3WZZQBVCuk7EWkyqzczbHrvCwxqVaxn8DuTQRZOw",
           };
           // Send the email
           var transporter = nodemailer.createTransport({
             service: "gmail",
-            auth: gmailAuth
+            auth: gmailAuth,
           });
           var mailOptions = {
             from: "MOOC <buzilightyear@gmail.com>",
@@ -330,9 +330,9 @@ router.post(
               "Hello,\n\n" +
               "Please enter this pascode\n\n" +
               token.token +
-              ".\n"
+              ".\n",
           };
-          transporter.sendMail(mailOptions, function(err) {
+          transporter.sendMail(mailOptions, function (err) {
             if (err) {
               return res.status(500).send({ msg: err.message });
             }
@@ -363,7 +363,7 @@ router.post("/search", [auth], async (req, res) => {
       _id: { $ne: req.user.id },
       roll: { $ne: "admin" },
       name: { $regex: searchItem, $options: "i" },
-      isVerified: true
+      isVerified: true,
     });
     if (!search) {
       return res.status(400).json({ errors: [{ msg: "No search found" }] });
@@ -373,12 +373,12 @@ router.post("/search", [auth], async (req, res) => {
       _id: { $ne: req.user.id },
       roll: { $ne: "admin" },
       name: { $regex: searchItem, $options: "i" },
-      isVerified: true
+      isVerified: true,
     })
       .limit(perPage)
       .skip(perPage * cPage)
       .sort({
-        name: "asc"
+        name: "asc",
       });
     return res.json({ search, totalPage });
 
@@ -396,7 +396,7 @@ router.post(
   [
     check("password", "Please include a password").exists(),
     check("cpassword", "Please include a Confirm password").exists(),
-    check("id", "Please include a id").exists()
+    check("id", "Please include a id").exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);

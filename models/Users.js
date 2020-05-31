@@ -3,38 +3,40 @@ const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   roll: {
     type: String,
-    required: true
+    required: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   avatar: {
-    type: String
+    type: String,
+    default:
+      "https://res.cloudinary.com/mooc/image/upload/v1590922028/profile/2020-05-31T10:47:02.070Z.jpg",
   },
   date: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   isVerified: {
     type: Boolean,
-    default: false
+    default: false,
   },
   passwordResetToken: {
-    type: String
+    type: String,
   },
   passwordResetExpires: {
-    type: Date
-  }
+    type: Date,
+  },
 });
 
 module.exports = User = mongoose.model("user", UserSchema);

@@ -4,12 +4,13 @@ const app = express();
 const path = require("path");
 const mime = require("mime");
 const fs = require("fs");
-const cloudinary = require("cloudinary").v2;
-cloudinary.config({
-  cloud_name: "mooc",
-  api_key: "265854168759756",
-  api_secret: "eSdb4VE70MLDyUXw3Pv9f7abuPY",
-});
+const cloudinary = require("./cludinary");
+const {
+  uploadFiles,
+  uploadprofile,
+  uploadcourse,
+  multer,
+} = require("./handlebars");
 connectDB();
 const {
   addUser,
@@ -19,35 +20,9 @@ const {
 } = require("./routes/api/room");
 
 const cors = require("cors");
-var multer = require("multer");
-var profilepic = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "ClientStart/src/assets/images");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-
-var coursepic = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "ClientStart/src/assets/Courseimages");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
-var lecturefiles = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "ClientStart/src/assets/lectures");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
 
 const corsOptions = {
-  Origin: "http://localhost:5000/",
+  Origin: "https://moocback.herokuapp.com/",
   "Access-Control-Allow-Headers":
     "Origin, X-Requested-With, Content-Type, Accept",
 };
@@ -84,9 +59,6 @@ app.use("/api/notifications", require("./routes/api/notifications"));
 app.use("/api/quiz", require("./routes/api/quiz"));
 app.use("/api/complaint", require("./routes/api/complaint"));
 app.use("/api/room", require("./routes/api/myRoom"));
-var uploadFiles = multer({ storage: lecturefiles }).any();
-var uploadprofile = multer({ storage: profilepic }).single("file");
-var uploadcourse = multer({ storage: coursepic }).single("file");
 
 app.get("/downloadfile/:name", function (req, res) {
   const name = req.params.name;
@@ -104,107 +76,151 @@ app.get("/downloadfile/:name", function (req, res) {
   res.download(file);
 });
 
-app.post("/upload", function (req, res) {
-  uploadprofile(req, res, function (err) {
+app.post("/upload", async function (req, res) {
+  uploadprofile(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
       return res.status(500).json(err);
     } else if (err) {
       return res.status(500).json(err);
     }
-    return res.status(200).send(req.file);
+
+    try {
+      const path = req.file.path;
+      const uniqueFilename = new Date().toISOString();
+      const result = await cloudinary.uploader.upload(path, {
+        public_id: `profile/${uniqueFilename}`,
+      });
+      url = result.secure_url;
+
+      console.log(url);
+      return res.json(url);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
   });
 });
-// app.get("/downloads", function(req, res) {
-//   console.log("here");
-//   const file = `/assests/lectures/${req.body.item}`;
-//   res.download(file); // Set disposition and send it.
-// });
-app.post("/lecturefiles", function (req, res) {
-  uploadFiles(req, res, function (err) {
+
+app.post("/lecturefiles", async (req, res) => {
+  await uploadFiles(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       console.log(err);
       return res.status(500).json(err);
     } else if (err) {
       return res.status(500).json(err2);
     }
-    return res.status(200).send(req.files);
+    try {
+      const upload_len = req.files.length;
+      const files = req.files;
+      let url = new Array();
+      for (let i = 0; i <= upload_len + 1; i++) {
+        if (url.length === upload_len) {
+          return res.json(url);
+        }
+        const path = files[i].path;
+        const uniqueFilename = new Date().toISOString();
+        const result = await cloudinary.uploader.upload(path, {
+          resource_type: "auto",
+          public_id: `lectures/${uniqueFilename}`,
+        });
+        if (result) {
+          url.push(result.secure_url);
+        }
+        console.log(url);
+      }
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
   });
 });
 
-app.post("/coursepic", function (req, res) {
-  uploadcourse(req, res, function (err) {
+app.post("/coursepic", async (req, res) => {
+  uploadcourse(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       return res.status(500).json(err);
     } else if (err) {
       return res.status(500).json(err2);
     }
-    return res.status(200).send(req.file);
+    try {
+      const path = req.file.path;
+      const uniqueFilename = new Date().toISOString();
+      const result = await cloudinary.uploader.upload(path, {
+        public_id: `CourseImages/${uniqueFilename}`,
+      });
+      url = result.secure_url;
+
+      console.log(url);
+      return res.json(url);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
   });
 });
 
-app.get("/mp4video/:name", function (req, res) {
-  const name = req.params.name;
-  const path = "ClientStart/src/assets/lectures/" + name;
-  const stat = fs.statSync(path);
-  const fileSize = stat.size;
-  const range = req.headers.range;
-  if (range) {
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-    const chunksize = end - start + 1;
-    const file = fs.createReadStream(path, { start, end });
-    const head = {
-      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": chunksize,
-      "Content-Type": "video/mp4",
-    };
-    res.writeHead(206, head);
-    file.pipe(res);
-  } else {
-    const head = {
-      "Content-Length": fileSize,
-      "Content-Type": "video/mp4",
-    };
-    res.writeHead(200, head);
-    fs.createReadStream(path).pipe(res);
-  }
-});
+// app.get("/mp4video/:name", function (req, res) {
+//   const name = req.params.name;
+//   const path = "ClientStart/src/assets/lectures/" + name;
+//   const stat = fs.statSync(path);
+//   const fileSize = stat.size;
+//   const range = req.headers.range;
+//   if (range) {
+//     const parts = range.replace(/bytes=/, "").split("-");
+//     const start = parseInt(parts[0], 10);
+//     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+//     const chunksize = end - start + 1;
+//     const file = fs.createReadStream(path, { start, end });
+//     const head = {
+//       "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+//       "Accept-Ranges": "bytes",
+//       "Content-Length": chunksize,
+//       "Content-Type": "video/mp4",
+//     };
+//     res.writeHead(206, head);
+//     file.pipe(res);
+//   } else {
+//     const head = {
+//       "Content-Length": fileSize,
+//       "Content-Type": "video/mp4",
+//     };
+//     res.writeHead(200, head);
+//     fs.createReadStream(path).pipe(res);
+//   }
+// });
 
-app.get("/avivideo/:name", function (req, res) {
-  const name = req.params.name;
-  const path = "ClientStart/src/assets/lectures/" + name;
-  const stat = fs.statSync(path);
-  const fileSize = stat.size;
-  const range = req.headers.range;
-  if (range) {
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-    const chunksize = end - start + 1;
-    const file = fs.createReadStream(path, { start, end });
-    const head = {
-      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": chunksize,
-      "Content-Type": "video/ogg",
-    };
-    res.writeHead(206, head);
-    file.pipe(res);
-  } else {
-    const head = {
-      "Content-Length": fileSize,
-      "Content-Type": "video/ogg",
-    };
-    res.writeHead(200, head);
-    fs.createReadStream(path).pipe(res);
-  }
-});
+// app.get("/avivideo/:name", function (req, res) {
+//   const name = req.params.name;
+//   const path = "ClientStart/src/assets/lectures/" + name;
+//   const stat = fs.statSync(path);
+//   const fileSize = stat.size;
+//   const range = req.headers.range;
+//   if (range) {
+//     const parts = range.replace(/bytes=/, "").split("-");
+//     const start = parseInt(parts[0], 10);
+//     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+//     const chunksize = end - start + 1;
+//     const file = fs.createReadStream(path, { start, end });
+//     const head = {
+//       "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+//       "Accept-Ranges": "bytes",
+//       "Content-Length": chunksize,
+//       "Content-Type": "video/ogg",
+//     };
+//     res.writeHead(206, head);
+//     file.pipe(res);
+//   } else {
+//     const head = {
+//       "Content-Length": fileSize,
+//       "Content-Type": "video/ogg",
+//     };
+//     res.writeHead(200, head);
+//     fs.createReadStream(path).pipe(res);
+//   }
+// });
 
 const PORT = process.env.PORT || 5000;
-//app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-console.log(PORT);
+
 //const app2 = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
@@ -218,16 +234,6 @@ io.on("connect", (socket) => {
     io.to(myroom).emit("roomData", {
       users: getUsersInRoom(myroom),
     });
-    //console.log(socket);
-    // socket.emit("message", {
-    //   user: "admin",
-    //   text: `${user.name}, welcome to room ${user.room}.`
-    // });
-    // if (check) {
-    //   socket.broadcast
-    //     .to(user.room)
-    //     .emit("message", { user: `${user.name}`, text: ` has joined!` });
-    // }
 
     callback();
   });
@@ -235,6 +241,7 @@ io.on("connect", (socket) => {
   socket.on("sendMessage", (tuple, callback) => {
     const { myroom, msg, check, id } = tuple;
     let room = myroom;
+    console.log("Here " + room);
     if (!check) {
       room = myroom[0] + "" + myroom[1];
     }
@@ -247,7 +254,11 @@ io.on("connect", (socket) => {
     const body = JSON.stringify({ room, Message });
     try {
       // const response =
-      axios.post("http://localhost:5000/api/message/SendMessage", body, config);
+      axios.post(
+        "https://moocback.herokuapp.com/api/message/SendMessage",
+        body,
+        config
+      );
       // console.log(response.data);
     } catch (error) {}
     io.to(theUser.room).emit("message", {
@@ -265,7 +276,7 @@ io.on("connect", (socket) => {
     try {
       const config = { headers: { "Content-Type": "application/json" } };
       const body = JSON.stringify({ myroom, id });
-      axios.post("http://localhost:5000/api/room/kick", body, config);
+      axios.post("https://moocback.herokuapp.com/api/room/kick", body, config);
     } catch (error) {}
     io.to(myroom).emit("roomData", {
       users: getUsersInRoom(myroom),
@@ -310,7 +321,11 @@ io.on("connection", function (socket) {
     try {
       const body = data.body;
       const config = { headers: { "Content-Type": "application/json" } };
-      axios.post("http://localhost:5000/api/notifications/", body, config);
+      axios.post(
+        "https://moocback.herokuapp.com/api/notifications/",
+        body,
+        config
+      );
     } catch (error) {
       console.log(error);
     }
