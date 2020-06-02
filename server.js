@@ -1,9 +1,6 @@
 const express = require("express");
 const connectDB = require("./config/db");
 const app = express();
-const path = require("path");
-const mime = require("mime");
-const fs = require("fs");
 const cloudinary = require("./cludinary");
 const {
   uploadFiles,
@@ -264,13 +261,14 @@ io.on("connect", (socket) => {
     callback();
   });
   socket.on("VideoCall", (tuple, callback) => {
-    const { name, room, userid } = tuple;
+    const { name, room, courseID, userid } = tuple;
 
     console.log("Here");
     try {
       socket.broadcast.emit("VideoCallRinging", {
         name: name,
         userid: userid,
+        courseID: courseID,
         room: room,
       });
     } catch (error) {}
