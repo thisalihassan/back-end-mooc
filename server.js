@@ -60,22 +60,6 @@ app.use("/api/quiz", require("./routes/api/quiz"));
 app.use("/api/complaint", require("./routes/api/complaint"));
 app.use("/api/room", require("./routes/api/myRoom"));
 
-app.get("/downloadfile/:name", function (req, res) {
-  const name = req.params.name;
-  var file = `ClientStart/src/assets/lectures/${name}`;
-
-  var filename = path.basename(file);
-  var mimetype = mime.lookup(file);
-
-  res.setHeader("Content-disposition", "attachment; filename=" + filename);
-  res.setHeader("Content-type", mimetype);
-
-  // var filestream = fs.createReadStream(file);
-  // filestream.pipe(res);
-  // window.open(file);
-  res.download(file);
-});
-
 app.post("/upload", async function (req, res) {
   uploadprofile(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
@@ -91,8 +75,6 @@ app.post("/upload", async function (req, res) {
         public_id: `profile/${uniqueFilename}`,
       });
       url = result.secure_url;
-
-      console.log(url);
       return res.json(url);
     } catch (err) {
       console.error(err.message);
@@ -239,36 +221,62 @@ io.on("connect", (socket) => {
   });
 
   socket.on("sendMessage", (tuple, callback) => {
-    const { myroom, msg, check, id } = tuple;
+    const { myroom, msg, check, id, timeStamp } = tuple;
     let room = myroom;
-    console.log("Here " + room);
     if (!check) {
       room = myroom[0] + "" + myroom[1];
     }
-    const theUser = getUser(room, id);
-    const text = msg;
-    console.log(theUser);
-    const user = theUser.name;
-    const Message = { user, text };
-    const config = { headers: { "Content-Type": "application/json" } };
-    const body = JSON.stringify({ room, Message });
+
     try {
-      // const response =
+      const theUser = getUser(room, id);
+      const text = msg;
+      const user = theUser.name;
+      const Message = { user, text, timeStamp };
+      const config = { headers: { "Content-Type": "application/json" } };
+      const body = JSON.stringify({ room, Message });
       axios.post(
         "https://moocback.herokuapp.com/api/message/SendMessage",
         body,
         config
       );
-      // console.log(response.data);
+      io.to(theUser.room).emit("message", {
+        room: theUser.room,
+        user: theUser.name,
+        text: msg,
+        timeStamp: timeStamp,
+      });
     } catch (error) {}
-    io.to(theUser.room).emit("message", {
-      room: theUser.room,
-      user: theUser.name,
-      text: msg,
-    });
+
     callback();
   });
+  socket.on("CallRing", (tuple, callback) => {
+    const { name, userid, URL } = tuple;
 
+    console.log("Here");
+    try {
+      socket.broadcast.emit("CallRinging", {
+        name: name,
+        userid: userid,
+        URL: URL,
+      });
+    } catch (error) {}
+
+    callback();
+  });
+  socket.on("VideoCall", (tuple, callback) => {
+    const { name, room, userid } = tuple;
+
+    console.log("Here");
+    try {
+      socket.broadcast.emit("VideoCallRinging", {
+        name: name,
+        userid: userid,
+        room: room,
+      });
+    } catch (error) {}
+
+    callback();
+  });
   socket.on("kickuser", (tuple, callback) => {
     const { myroom, id, name } = tuple;
     removeUser(myroom, id);

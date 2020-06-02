@@ -9,17 +9,13 @@ router.post("/SendMessage", async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   const { room, Message } = req.body;
-  //Built Profile object
   const MessageFields = {};
+  console.log(req.body.Message.text);
   MessageFields.room = room;
   if (Message) MessageFields.Message = Message;
-  //   if (skills) {
-  //     profileFields.skills = skills.split(",").map(skill => skill.trim());
-  //   }
-  //   if (location) profileFields.location = location;
-
   try {
     let messageProfile = await MessageProfile.findOne({ room: room });
+
     if (messageProfile) {
       messageProfile = await MessageProfile.findOneAndUpdate(
         { room: room },
@@ -56,7 +52,7 @@ router.post("/delete", async (req, res) => {
   }
   const { room } = req.body;
   try {
-    let messageProfile = await MessageProfile.remove({ room: room });
+    let messageProfile = await MessageProfile.findOneAndRemove({ room: room });
     return res.json(messageProfile);
   } catch (err) {}
 });

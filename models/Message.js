@@ -1,25 +1,21 @@
 const mongoose = require("mongoose");
-const getCurrentTime = () => {
-  const now = new Date();
-  return now.getHours() + ":" + now.getMinutes();
-};
 const MessageSchema = new mongoose.Schema({
   room: {
     type: String,
-    required: true
+    required: true,
   },
   Message: [
     {
       user: {
         type: String,
-        required: true
+        required: true,
       },
       text: {
-        type: String
+        type: String,
       },
-      timeStamp: { type: String, default: getCurrentTime }
-    }
-  ]
+      timeStamp: { type: String },
+    },
+  ],
 });
 
 module.exports = Message = mongoose.model("Messages", MessageSchema);
