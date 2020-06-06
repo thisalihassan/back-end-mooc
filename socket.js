@@ -76,6 +76,32 @@ io.on("connect", (socket) => {
 
     callback();
   });
+  socket.on("ScreenSharing", (tuple, callback) => {
+    const { name, room, courseID, userid } = tuple;
+    try {
+      socket.broadcast.emit("ScreenShareCall", {
+        name: name,
+        userid: userid,
+        courseID: courseID,
+        room: room,
+      });
+    } catch (error) {}
+
+    callback();
+  });
+  socket.on("AudioCall", (tuple, callback) => {
+    const { name, room, courseID, userid } = tuple;
+    try {
+      socket.broadcast.emit("AudioCallRinging", {
+        name: name,
+        userid: userid,
+        courseID: courseID,
+        room: room,
+      });
+    } catch (error) {}
+
+    callback();
+  });
   socket.on("kickuser", (tuple, callback) => {
     const { myroom, id, name } = tuple;
     removeUser(myroom, id);
