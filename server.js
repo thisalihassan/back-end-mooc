@@ -50,7 +50,7 @@ app.use("/api/notifications", require("./routes/api/notifications"));
 app.use("/api/quiz", require("./routes/api/quiz"));
 app.use("/api/complaint", require("./routes/api/complaint"));
 app.use("/api/room", require("./routes/api/myRoom"));
-app.use("/api/recomendation", require("./routes/api/CourseRecomendation"));
+// app.use("/api/recomendation", require("./routes/api/CourseRecomendation"));
 
 app.post("/upload", async function (req, res) {
   uploadprofile(req, res, async function (err) {
