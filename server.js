@@ -13,17 +13,14 @@ connectDB();
 const cors = require("cors");
 
 const corsOptions = {
-  Origin: "https://moocfyp.herokuapp.com/",
+  Origin: "http://localhost:3000/",
   "Access-Control-Allow-Headers":
     "Origin, X-Requested-With, Content-Type, Accept",
 };
 app.use(cors(corsOptions));
-//Init Middleware
 app.use(express.json({ extended: false }));
 app.get("/", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", true);
-
-  // Request methods you wish to allow
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"

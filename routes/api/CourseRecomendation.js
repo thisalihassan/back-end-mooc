@@ -92,14 +92,15 @@ router.post("/likecourses", [auth], async (req, res) => {
       const user = JSON.parse(data.toString());
       recommender.import(user);
       const recommendations = [];
-      let length = enroll.courses.length;
-      let mycouses = enroll.courses;
-      for (let i = 0; i < length; i++) {
-        const similarDocuments = recommender.getSimilarDocuments(
-          mycouses[i],
-          0,
-          10
-        );
+      const similarDocuments = recommender.getSimilarDocuments(
+        req.body.id,
+        0,
+        10
+      );
+      if (enroll) {
+        let length = enroll.courses.length;
+        let mycouses = enroll.courses;
+
         for (let j = 0; j < similarDocuments.length; j++) {
           let match = false;
           for (let k = 0; k < length; k++) {
@@ -112,27 +113,38 @@ router.post("/likecourses", [auth], async (req, res) => {
             recommendations.push(similarDocuments[j].id);
           }
         }
+      } else {
+        for (let j = 0; j < similarDocuments.length; j++) {
+          recommendations.push(similarDocuments[j].id);
+        }
       }
       let courses = await Courses.find({
         user: req.user.id,
       });
       let tuned = [];
-      for (let j = 0; j < recommendations.length; j++) {
-        let match = false;
-        for (let k = 0; k < courses.length; k++) {
-          if (recommendations[j] == courses[k]._id) {
-            match = true;
-            break;
+      if (courses) {
+        for (let j = 0; j < recommendations.length; j++) {
+          let match = false;
+          for (let k = 0; k < courses.length; k++) {
+            if (recommendations[j] == courses[k]._id) {
+              match = true;
+              break;
+            }
+          }
+          if (!match) {
+            tuned.push(recommendations[j]);
           }
         }
-        if (!match) {
-          tuned.push(recommendations[j]);
-        }
+        courses = await Courses.find({
+          _id: { $in: tuned },
+        });
+        res.json({ courses });
+      } else {
+        courses = await Courses.find({
+          _id: { $in: recommendations },
+        });
+        res.json({ courses });
       }
-      courses = await Courses.find({
-        _id: { $in: tuned },
-      });
-      res.json({ courses });
     });
   } catch (err) {
     console.error(err.message);
