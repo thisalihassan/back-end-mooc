@@ -13,7 +13,7 @@ connectDB();
 const cors = require("cors");
 
 const corsOptions = {
-  Origin: "http://localhost:3000/",
+  Origin: "https://moocfyp.herokuapp.com/",
   "Access-Control-Allow-Headers":
     "Origin, X-Requested-With, Content-Type, Accept",
 };
