@@ -1,7 +1,7 @@
 {
-    "name": "reacthaha",
+    "name": "mooc_backend",
     "version": "1.0.0",
-    "description": "Hello React",
+    "description": "backend of mooc",
     "main": "server.js",
     "routes": {
         "cors": true
@@ -23,6 +23,7 @@
         "bcryptjs": "^2.4.3",
         "cloudinary": "^1.21.0",
         "config": "^3.2.4",
+        "content-based-recommender": "^1.4.0",
         "cors": "^2.8.5",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
@@ -30,13 +31,13 @@
         "express-validator": "^6.2.0",
         "jsonwebtoken": "^8.5.1",
         "mem": "^5.1.1",
-        "mongodb": "^3.5.1",
-        "mongoose": "^5.8.9",
+        "mongodb": "^3.5.8",
+        "mongoose": "^5.9.18",
         "multer": "^1.4.2",
         "node-crypt": "^2.0.0",
-        "nodemailer": "^6.3.1",
+        "nodemailer": "^6.4.8",
         "package.json": "^2.0.1",
-        "query-string": "^6.9.0",
+        "query-string": "^6.13.0",
         "request": "^2.88.0",
         "socket.io": "^2.3.0",
         "xoauth2": "^1.2.0"

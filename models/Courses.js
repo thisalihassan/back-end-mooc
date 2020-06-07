@@ -7,6 +7,9 @@ const CoursesSchema = new mongoose.Schema({
   name: {
     type: String,
   },
+  subscribers: {
+    type: Number,
+  },
   tags: {
     type: [String],
   },

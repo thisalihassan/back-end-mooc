@@ -6,6 +6,12 @@ const { check, validationResult } = require("express-validator");
 const Files = require("../../models/LectureFiles");
 const Notification = require("../../models/Notification");
 const auth = require("../../middleware/auth");
+const ContentBasedRecommender = require("content-based-recommender");
+const fs = require("fs");
+const recommender = new ContentBasedRecommender({
+  minScore: 0.15,
+  maxSimilarDocuments: 30,
+});
 //
 //update and create
 router.post("/", [auth], async (req, res) => {
@@ -25,7 +31,6 @@ router.post("/", [auth], async (req, res) => {
     category,
   } = req.body;
 
-  //Built Profile object
   const courseFields = {};
   courseFields.user = req.user.id;
   if (name) courseFields.name = name;
@@ -45,7 +50,7 @@ router.post("/", [auth], async (req, res) => {
         { $set: courseFields },
         { new: true }
       );
-      return res.json(profile);
+      return res.json(course);
     }
     course = new Courses(courseFields);
     await course.save();
@@ -63,7 +68,6 @@ router.delete("/delete/:c_id", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  //Built Profile object
   try {
     let course = await Courses.findOne({ _id: req.params.c_id });
     if (!course) {
@@ -263,15 +267,52 @@ router.post("/mycourse", [auth], async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
-
+router.post("/topcourses", [auth], async (req, res) => {
+  try {
+    const courses = await Courses.find({}).sort({ subscribers: -1 }).limit(12);
+    return res.json(courses);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 router.get("/acceptcourse/:id", [auth], async (req, res) => {
   try {
-    const course = await Courses.findOneAndUpdate(
+    let activate = await Courses.findOneAndUpdate(
       { _id: req.params.id },
       { Approval: "Active" },
       { new: true }
     );
-    return res.json(profile);
+    let courses = await Courses.find({
+      Approval: "Active",
+    });
+    let documents;
+    if (courses) {
+      documents = [];
+      let length = courses.length;
+      for (let i = 0; i < length; i++) {
+        let tags = "";
+        for (let j = 0; j < courses[i].tags.length; j++) {
+          tags = tags + " " + courses[i].tags[j];
+        }
+        documents.push({
+          id: courses[i]._id,
+          content: courses[i].name + " " + courses[i].category + " " + tags,
+        });
+      }
+      recommender.train(documents);
+      const object = recommender.export();
+      const data = JSON.stringify(object);
+
+      // write JSON string to a file
+      fs.writeFile("user.json", data, (err) => {
+        if (err) {
+          throw err;
+        }
+        console.log("JSON data is saved.");
+      });
+    }
+    return res.json(activate);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -432,7 +473,6 @@ router.post("/search", [auth], async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  console.log("here");
   const { searchItem, currentPage, perPage } = req.body;
   const cPage = currentPage - 1;
   try {

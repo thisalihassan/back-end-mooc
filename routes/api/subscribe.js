@@ -3,6 +3,7 @@ const router = express.Router();
 const Subscribe = require("../../models/Subscribe");
 const Rating = require("../../models/Rating");
 const FollowCourse = require("../../models/CourseFollower");
+const Courses = require("../../models/Courses");
 const { check, validationResult } = require("express-validator");
 const auth = require("../../middleware/auth");
 //
@@ -12,6 +13,11 @@ router.post("/", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
+    let courses = await Courses.findOneAndUpdate(
+      { _id: req.body.id },
+      { $inc: { subscribers: 2 } },
+      { new: true }
+    );
     let enroll = await FollowCourse.findOne({ course: req.body.id });
     const enrollFields = {};
     enrollFields.course = req.body.id;
@@ -28,7 +34,7 @@ router.post("/", [auth], async (req, res) => {
     let enrolled = await Subscribe.findOne({ user: req.user.id });
     const enrolledFields = {};
     enrolledFields.user = req.user.id;
-    let courses = req.body.id;
+    courses = req.body.id;
     if (!enrolled) {
       enrolled = new Subscribe(enrolledFields);
       enrolled.courses.unshift(courses);
@@ -51,7 +57,7 @@ router.post("/getCoursefollowers", [auth], async (req, res) => {
   }
   try {
     let enroll = await FollowCourse.findOne({
-      course: req.body.id
+      course: req.body.id,
     }).populate("CourseFollowers", ["name", "avatar"]);
     if (enroll) {
       return res.json(enroll.CourseFollowers);
@@ -108,12 +114,12 @@ router.post("/getsubscription", [auth], async (req, res) => {
   }
   try {
     let enroll = await Subscribe.findOne({
-      user: req.user.id
+      user: req.user.id,
     }).populate("following courses followers", [
       "name",
       "pic",
       "avatar",
-      "user"
+      "user",
     ]);
     if (enroll) {
       return res.json(enroll);
@@ -132,7 +138,7 @@ router.post("/getfollowers", [auth], async (req, res) => {
   }
   try {
     let enroll = await Subscribe.findOne({
-      user: req.body.id
+      user: req.body.id,
     });
     if (enroll) {
       return res.json(enroll.followers.length);
@@ -149,12 +155,17 @@ router.post("/unsubscribecourse", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
+    const courses = await Courses.findOneAndUpdate(
+      { _id: req.body.id },
+      { $inc: { subscribers: -1 } },
+      { new: true }
+    );
     let follow = await Subscribe.findOne({ user: req.user.id });
     if (follow) {
       follow.courses.pull({ _id: req.body.id });
       await follow.save();
       let enroll = await FollowCourse.findOne({
-        course: req.body.id
+        course: req.body.id,
       });
       enroll.CourseFollowers.pull({ _id: req.user.id });
       enroll.save();
@@ -209,9 +220,9 @@ router.post("/rate", [auth], async (req, res) => {
     let myrating2 = await Rating.findOne({ course: course }).select({
       CourseRate: {
         $elemMatch: {
-          student: req.user.id
-        }
-      }
+          student: req.user.id,
+        },
+      },
     });
     if (!myrating2) {
       myrating.push({ CourseRate: CourseRate, TeacherRate: TeacherRate });
@@ -231,7 +242,7 @@ router.post("/getrate", [auth], async (req, res) => {
   }
   try {
     let myrating = await Rating.findOne({
-      $or: [{ course: req.body.id }, { teacher: req.body.id }]
+      $or: [{ course: req.body.id }, { teacher: req.body.id }],
     }).populate("TeacherRate.student CourseRate.student", ["name", "avatar"]);
 
     return res.json(myrating);
