@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
 const app = express();
@@ -9,7 +10,7 @@ const {
   multer,
 } = require("./handlebars");
 connectDB();
-
+const { getData } = require("./gAnalytics");
 const cors = require("cors");
 
 const corsOptions = {
@@ -129,7 +130,36 @@ app.post("/coursepic", async (req, res) => {
     }
   });
 });
+app.get("/api/graph", (req, res) => {
+  const metric = "ga:users";
+  // 1 week time frame
+  let promises = [];
+  for (let i = 7; i >= 0; i -= 1) {
+    promises.push(getData([metric], `${i}daysAgo`, `${i}daysAgo`)[0]);
+  }
+  promises = [].concat(...promises);
 
+  Promise.all(promises)
+    .then((data) => {
+      const values = [];
+      const days = [];
+      Object.values(data).forEach((value) => {
+        const data = value[metric].value;
+        const day = value[metric].start;
+        values.push(data);
+        days.push(day);
+      });
+
+      res.send({ values, days });
+      console.log("Done");
+    })
+    .catch((err) => {
+      console.log("Error:");
+      console.log(err);
+      res.send({ status: "Error", message: `${err}` });
+      console.log("Done");
+    });
+});
 let http;
 exports.http = http = require("http").createServer(app);
 require("./socket");
