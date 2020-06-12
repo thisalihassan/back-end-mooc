@@ -81,6 +81,7 @@ router.post("/studentsubmit", [auth], async (req, res) => {
             marks += markPerQues;
           }
         }
+        mquiz.autocheck = autocheck;
         mquiz.marks = marks;
       } else {
         mquiz.marks = 0;
