@@ -12,7 +12,7 @@ const bcrypt = require("bcryptjs");
 router.get("/me", auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({
-      user: req.user.id
+      user: req.user.id,
     }).populate("user", ["name", "avatar", "roll"]);
 
     if (!profile) {
@@ -26,7 +26,7 @@ router.get("/me", auth, async (req, res) => {
 router.get("/userProfile/:uid", auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({
-      user: req.params.uid
+      user: req.params.uid,
     }).populate("user", ["name", "avatar", "roll"]);
 
     if (!profile) {
@@ -116,7 +116,7 @@ router.post("/approveProfile", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    console.log(req.body.id)
+    console.log(req.body.id);
     await Report.findOneAndRemove({ reported: req.body.id });
     return res.json(null);
   } catch (err) {
@@ -136,7 +136,7 @@ router.post("/findmyreport", [auth], async (req, res) => {
   try {
     let report = await Report.findOne({
       reported: req.body.id,
-      reporter: req.user.id
+      reporter: req.user.id,
     });
     return res.json(report);
   } catch (err) {
@@ -150,7 +150,7 @@ router.post("/findmyreport", [auth], async (req, res) => {
 router.get("/", [auth], async (req, res) => {
   try {
     const profiles = await Profile.find({
-      user: { $ne: req.user.id }
+      user: { $ne: req.user.id },
     }).populate("user", ["name", "avatar", "roll"]);
     res.json(profiles);
   } catch (err) {
@@ -167,16 +167,10 @@ router.put(
   [
     auth,
     [
-      check("fieldofstudy", "Field is required")
-        .not()
-        .isEmpty(),
-      check("current", "Current Degree is required")
-        .not()
-        .isEmpty(),
-      check("from", "From Date is required")
-        .not()
-        .isEmpty()
-    ]
+      check("fieldofstudy", "Field is required").not().isEmpty(),
+      check("current", "Current Degree is required").not().isEmpty(),
+      check("from", "From Date is required").not().isEmpty(),
+    ],
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -190,7 +184,7 @@ router.put(
       location,
       from,
       to,
-      current
+      current,
     };
 
     try {
@@ -216,7 +210,7 @@ router.post("/geteducation/:edu_id", [auth], async (req, res) => {
 
   try {
     let education = await Profile.findOne({ user: req.user.id }).select({
-      education: { $elemMatch: { _id: req.params.edu_id } }
+      education: { $elemMatch: { _id: req.params.edu_id } },
     });
 
     return res.json(education);
@@ -234,7 +228,7 @@ router.post("/getwork/:w_id", [auth], async (req, res) => {
 
   try {
     let work = await Profile.findOne({ user: req.user.id }).select({
-      work: { $elemMatch: { _id: req.params.w_id } }
+      work: { $elemMatch: { _id: req.params.w_id } },
     });
 
     return res.json(work);
@@ -249,16 +243,10 @@ router.put(
   [
     auth,
     [
-      check("company", "Field is required")
-        .not()
-        .isEmpty(),
-      check("position", "Current Degree is required")
-        .not()
-        .isEmpty(),
-      check("from", "From Date is required")
-        .not()
-        .isEmpty()
-    ]
+      check("company", "Field is required").not().isEmpty(),
+      check("position", "Current Degree is required").not().isEmpty(),
+      check("from", "From Date is required").not().isEmpty(),
+    ],
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -272,7 +260,7 @@ router.put(
 
       from,
       to,
-      position
+      position,
     };
 
     try {
@@ -306,8 +294,8 @@ router.post("/education/:edu_id", auth, async (req, res) => {
             "education.$.fieldofstudy": fieldofstudy,
             "education.$.from": from,
             "education.$.to": to,
-            "education.$.current": current
-          }
+            "education.$.current": current,
+          },
         },
         { new: true }
       );
@@ -353,8 +341,8 @@ router.post("/work/:w_id", auth, async (req, res) => {
             "work.$.company": company,
             "work.$.from": from,
             "work.$.to": to,
-            "work.$.position": position
-          }
+            "work.$.position": position,
+          },
         },
         { new: true }
       );
@@ -386,7 +374,7 @@ router.delete("/work/:wid", auth, async (req, res) => {
 router.post("/delete", auth, async (req, res) => {
   try {
     const password = req.body.password;
-    let user = await User.findOne({ _id: req.body.id });
+    let user = await User.findOne({ _id: req.user.id });
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
 
@@ -397,9 +385,9 @@ router.post("/delete", auth, async (req, res) => {
       }
       await Profile.findOneAndRemove({ user: req.body.id });
       await User.findOneAndRemove({ _id: req.body.id });
-      res.json({ msg: "User deleted" });
+      return res.json({ msg: "User deleted" });
     }
-    res.json({ msg: "Wrong Password Entered" });
+    return res.json({ msg: "Wrong Password Entered" });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");

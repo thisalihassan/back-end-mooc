@@ -4,7 +4,7 @@ const Notification = require("../../models/Notification");
 const { validationResult } = require("express-validator");
 const auth = require("../../middleware/auth");
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -46,16 +46,16 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.post("/getNotification", async (req, res) => {
+router.post("/getNotification", auth, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
-    const { course, user } = req.body;
+    const { course } = req.body;
     let notify = await Notification.find({
-      $or: [{ course: { $in: course } }, { user: { $in: user } }]
+      $or: [{ course: { $in: course } }],
     });
 
     return res.json(notify);

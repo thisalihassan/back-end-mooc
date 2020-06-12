@@ -151,7 +151,6 @@ app.get("/api/graph", (req, res) => {
       });
 
       res.send({ values, days });
-      console.log("Done");
     })
     .catch((err) => {
       console.log("Error:");

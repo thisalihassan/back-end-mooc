@@ -49,7 +49,6 @@ function getData(
   const results = [];
   for (let i = 0; i < metrics.length; i += 1) {
     const metric = parseMetric(metrics[i]);
-    console.log(metric);
     results.push(getMetric(metric, startDate, endDate));
   }
 

@@ -4,59 +4,63 @@ let Schema = mongoose.Schema;
 let QuizSchema = new Schema({
   course: {
     type: Schema.Types.ObjectId,
-    ref: "courses"
+    ref: "courses",
   },
   user: {
     type: Schema.Types.ObjectId,
-    ref: "user"
+    ref: "user",
   },
   quiz: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    ref: "quiz",
   },
   status: {
     type: String,
-    default: "Pending"
+    default: "Pending",
+  },
+  marks: {
+    type: Number,
   },
   title: {
-    type: String
+    type: String,
   },
   time: {
-    type: Number
+    type: Number,
   },
 
   autocheck: {
-    type: Boolean
+    type: Boolean,
   },
   questions: [
     {
       id: {
-        type: String
+        type: String,
       },
       question: {
-        type: String
+        type: String,
       },
       answerType: {
-        type: Number
+        type: Number,
       },
       myAnswer: {
-        type: String
+        type: String,
       },
       answers: [
         {
           id: {
-            type: String
+            type: String,
           },
           label: {
-            type: String
-          }
-        }
-      ]
-    }
+            type: String,
+          },
+        },
+      ],
+    },
   ],
   date: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("quiz", QuizSchema);
