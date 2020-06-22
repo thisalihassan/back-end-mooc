@@ -23,7 +23,7 @@ router.get("/me", auth, async (req, res) => {
     return res.status(500).send("Server Error");
   }
 });
-router.get("/userProfile/:uid", auth, async (req, res) => {
+router.get("/userProfile/:uid", async (req, res) => {
   try {
     const profile = await Profile.findOne({
       user: req.params.uid,

@@ -131,7 +131,7 @@ router.post("/getsubscription", [auth], async (req, res) => {
   }
 });
 
-router.post("/getfollowers", [auth], async (req, res) => {
+router.post("/getfollowers", async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -235,7 +235,7 @@ router.post("/rate", [auth], async (req, res) => {
   }
 });
 
-router.post("/getrate", [auth], async (req, res) => {
+router.post("/getrate", async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });

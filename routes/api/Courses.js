@@ -208,7 +208,7 @@ router.post("/getFiles", [auth], async (req, res) => {
   }
 });
 
-router.post("/getcourses", [auth], async (req, res) => {
+router.post("/getcourses", async (req, res) => {
   try {
     const courses = await Courses.find({
       user: req.body.id,
@@ -256,7 +256,7 @@ router.post("/active", [auth], async (req, res) => {
   }
 });
 //FindCourse
-router.post("/mycourse", [auth], async (req, res) => {
+router.post("/mycourse", async (req, res) => {
   try {
     const courses = await Courses.findById({
       _id: req.body.id,
@@ -270,6 +270,28 @@ router.post("/mycourse", [auth], async (req, res) => {
 router.post("/topcourses", [auth], async (req, res) => {
   try {
     const courses = await Courses.find({}).sort({ subscribers: -1 }).limit(12);
+    return res.json(courses);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+router.post("/topcoursesbycat", async (req, res) => {
+  try {
+    const courses = await Courses.find({ category: req.body.category })
+      .sort({ subscribers: -1 })
+      .limit(5);
+
+    return res.json(courses);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+router.post("/searchbycat", async (req, res) => {
+  try {
+    const courses = await Courses.find({ category: req.body.category });
+
     return res.json(courses);
   } catch (err) {
     console.error(err.message);
@@ -468,7 +490,7 @@ router.post("/addanouncement", [auth], async (req, res) => {
   }
 });
 
-router.post("/search", [auth], async (req, res) => {
+router.post("/search", async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
