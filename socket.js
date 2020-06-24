@@ -64,12 +64,13 @@ io.on("connect", (socket) => {
     callback();
   });
   socket.on("VideoCall", (tuple, callback) => {
-    const { name, room, courseID, userid } = tuple;
+    const { name, room, zoom, courseID, userid } = tuple;
     try {
       socket.broadcast.emit("VideoCallRinging", {
         name: name,
         userid: userid,
         courseID: courseID,
+        zoom: zoom,
         room: room,
       });
     } catch (error) {}
