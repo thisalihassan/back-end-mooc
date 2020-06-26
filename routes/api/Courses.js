@@ -2,9 +2,14 @@ const express = require("express");
 const router = express.Router();
 const Courses = require("../../models/Courses");
 const Anouncement = require("../../models/Anouncements");
+const Quiz = require("../../models/Quiz");
+const Assignment = require("../../models/Assignment");
 const { check, validationResult } = require("express-validator");
 const Files = require("../../models/LectureFiles");
 const Notification = require("../../models/Notification");
+const Room = require("../../models/Room");
+const Subscribe = require("../../models/Subscribe");
+const FollowCourse = require("../../models/CourseFollower");
 const auth = require("../../middleware/auth");
 const ContentBasedRecommender = require("content-based-recommender");
 const fs = require("fs");
@@ -73,6 +78,24 @@ router.delete("/delete/:c_id", [auth], async (req, res) => {
     if (!course) {
       return res.json("Course not Found");
     }
+    await Room.findOneAndRemove({ course: req.params.c_id });
+    let follow = await Subscribe.find();
+    await Quiz.findOneAndRemove({ course: req.params.c_id });
+    await Assignment.findOneAndRemove({ course: req.params.c_id });
+    if (follow) {
+      const length = follow.length;
+      for (let i = 0; i < length; i++) {
+        follow[i].courses.pull({ _id: req.params.c_id });
+        await follow[i].save();
+      }
+
+      await FollowCourse.findOneAndRemove({
+        course: req.params.c_id,
+      });
+    }
+    await Anouncement.findOneAndRemove({
+      course: req.params.c_id,
+    });
     course = await Courses.findByIdAndRemove({ _id: req.params.c_id });
     return res.json("Successful");
   } catch (err) {

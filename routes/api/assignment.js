@@ -51,18 +51,18 @@ router.post("/remove/:id", [auth], async (req, res) => {
   try {
     let assign = await Assignment.findOne({ "assignment._id": req.params.id });
     let notify = await Notification.findOne({
-      "notification.assignment": req.params.id
+      "notification.assignment": req.params.id,
     }).select({
       notification: {
         $elemMatch: {
-          assignment: req.params.id
-        }
-      }
+          assignment: req.params.id,
+        },
+      },
     });
     if (notify) {
       const id = notify.notification[0]._id;
       notify = await Notification.findOne({
-        "notification._id": id
+        "notification._id": id,
       });
       notify.notification.pull({ _id: id });
       await notify.save();
@@ -91,18 +91,18 @@ router.post("/edit/:id", [auth], async (req, res) => {
   try {
     const { file, title, duedate } = req.body;
     let notify = await Notification.findOne({
-      "notification.assignment": req.params.id
+      "notification.assignment": req.params.id,
     }).select({
       notification: {
         $elemMatch: {
-          assignment: req.params.id
-        }
-      }
+          assignment: req.params.id,
+        },
+      },
     });
     if (notify) {
       const id = notify.notification[0]._id;
       notify = await Notification.findOne({
-        "notification._id": id
+        "notification._id": id,
       });
       notify.notification.pull({ _id: id });
       await notify.save();
@@ -113,19 +113,19 @@ router.post("/edit/:id", [auth], async (req, res) => {
         $set: {
           "assignment.$.file": file,
           "assignment.$.title": title,
-          "assignment.$.duedate": duedate
-        }
+          "assignment.$.duedate": duedate,
+        },
       },
       { new: true }
     );
     assign = await Assignment.findOne({
-      "assignment._id": req.params.id
+      "assignment._id": req.params.id,
     }).select({
       assignment: {
         $elemMatch: {
-          _id: req.params.id
-        }
-      }
+          _id: req.params.id,
+        },
+      },
     });
     return res.json(assign.assignment[0]);
   } catch (err) {
@@ -142,14 +142,14 @@ router.post("/getassignment/:id", [auth], async (req, res) => {
 
   try {
     let assign = await Assignment.findOne({
-      "assignment._id": req.params.id
+      "assignment._id": req.params.id,
     })
       .select({
         assignment: {
           $elemMatch: {
-            _id: req.params.id
-          }
-        }
+            _id: req.params.id,
+          },
+        },
       })
       .populate("course submitassignment.user", ["name", "avatar"]);
     return res.json(assign);
@@ -167,23 +167,23 @@ router.post("/getsubassignment/:id", [auth], async (req, res) => {
 
   try {
     let assign = await Assignment.findOne({
-      "assignment._id": req.params.id
+      "assignment._id": req.params.id,
     }).populate("course", ["name"]);
     const course = assign.course;
     assign = await Assignment.findOne({
-      "assignment._id": req.params.id
+      "assignment._id": req.params.id,
     })
       .select({
         submitassignment: {
           $elemMatch: {
-            assignment: req.params.id
-          }
-        }
+            assignment: req.params.id,
+          },
+        },
       })
       .populate("submitassignment.user", ["name", "avatar"]);
     return res.json({
       assign: assign,
-      course: course
+      course: course,
     });
   } catch (err) {
     console.error(err.message);
@@ -198,7 +198,7 @@ router.post("/getassignments", [auth], async (req, res) => {
   try {
     const { course, roll } = req.body;
     let assign = await Assignment.find({
-      course: { $in: course }
+      course: { $in: course },
     })
       .sort({ "assignment.duedate": 1 })
       .populate("course", ["name"]);
@@ -224,7 +224,7 @@ router.post("/todayassignments", [auth], async (req, res) => {
     );
     let assign = await Assignment.find({
       course: { $in: course },
-      "assignment.duedate": { $gte: startOfToday }
+      "assignment.duedate": { $gte: startOfToday },
     })
       .sort({ "assignment.duedate": 1 })
       .populate("course", ["name"]);
@@ -247,7 +247,7 @@ router.post("/submitassignment/:id", [auth], async (req, res) => {
     submitassignment.file = file;
     submitassignment.user = req.user.id;
     let assign = await Assignment.findOne({
-      "assignment._id": req.params.id
+      "assignment._id": req.params.id,
     }).populate("course", ["name"]);
     assign.submitassignment.unshift(submitassignment);
     await assign.save();
