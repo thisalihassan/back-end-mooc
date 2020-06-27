@@ -143,11 +143,7 @@ io.on("connection", function (socket) {
     try {
       const body = data.body;
       const config = { headers: { "Content-Type": "application/json" } };
-      axios.post(
-        "https://moocback.herokuapp.com/api/notifications/",
-        body,
-        config
-      );
+      axios.post("http://localhost:5000/api/notifications/", body, config);
     } catch (error) {
       console.log(error);
     }
