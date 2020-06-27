@@ -4,7 +4,7 @@ const Notification = require("../../models/Notification");
 const { validationResult } = require("express-validator");
 const auth = require("../../middleware/auth");
 
-router.post("/", auth, async (req, res) => {
+router.post("/", async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });

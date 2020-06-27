@@ -140,18 +140,6 @@ io.on("connect", (socket) => {
 
 io.on("connection", function (socket) {
   socket.on("new_notification", function (data) {
-    // const anouncements = data.body.anouncements;
-    // const assignment = data.body.assignment;
-    // const quiz = data.body.quiz;
-    // const user = data.body.user;
-    // const course = data.course;
-    // const body = JSON.stringify({
-    //   anouncements,
-    //   assignment,
-    //   quiz,
-    //   user,
-    //   course
-    // });
     try {
       const body = data.body;
       const config = { headers: { "Content-Type": "application/json" } };
