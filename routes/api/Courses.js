@@ -372,23 +372,22 @@ router.get("/remove/:id", [auth], async (req, res) => {
     let anounce = await Anouncement.findOne({
       "anouncement._id": req.params.id,
     });
-    let notify = await Notification.findOne({
+    let notify = await Notification.find({
       "notification.anouncements": req.params.id,
-    }).select({
-      notification: {
-        $elemMatch: {
-          anouncements: req.params.id,
-        },
-      },
     });
     if (notify) {
-      const id = notify.notification[0]._id;
-      notify = await Notification.findOne({
-        "notification._id": id,
-      });
-      notify.notification.pull({ _id: id });
-      await notify.save();
-      console.log("Here 2");
+      for (let i = 0; i < notify.length; i++) {
+        let id = notify[i].notification.filter(
+          (x) => x.anouncements == req.params.id
+        );
+        id = id[0]._id;
+
+        let notify2 = await Notification.findOne({
+          "notification._id": id,
+        });
+        notify2.notification.pull({ _id: id });
+        await notify2.save();
+      }
     }
 
     if (anounce) {
@@ -416,22 +415,22 @@ router.post("/edit/:id", [auth], async (req, res) => {
 
   try {
     const { description } = req.body;
-    let notify = await Notification.findOne({
+    let notify = await Notification.find({
       "notification.anouncements": req.params.id,
-    }).select({
-      notification: {
-        $elemMatch: {
-          anouncements: req.params.id,
-        },
-      },
     });
     if (notify) {
-      const id = notify.notification[0]._id;
-      notify = await Notification.findOne({
-        "notification._id": id,
-      });
-      notify.notification.pull({ _id: id });
-      await notify.save();
+      for (let i = 0; i < notify.length; i++) {
+        let id = notify[i].notification.filter(
+          (x) => x.anouncements == req.params.id
+        );
+        id = id[0]._id;
+
+        let notify2 = await Notification.findOne({
+          "notification._id": id,
+        });
+        notify2.notification.pull({ _id: id });
+        await notify2.save();
+      }
     }
     let assign = await Anouncement.updateOne(
       { "anouncement._id": req.params.id },

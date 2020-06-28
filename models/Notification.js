@@ -4,39 +4,36 @@ let Schema = mongoose.Schema;
 let NotificationSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "user"
+    ref: "user",
   },
-  course: {
-    type: Schema.Types.ObjectId,
-    ref: "courses"
-  },
+  counter: { type: Number, default: 1 },
   notification: [
     {
       mycourse: {
         type: Schema.Types.ObjectId,
-        ref: "courses"
+        ref: "courses",
       },
       anouncements: {
         type: Schema.Types.ObjectId,
-        ref: "Anouncements"
+        ref: "Anouncements",
       },
       quiz: {
         type: Schema.Types.ObjectId,
-        ref: "quiz"
+        ref: "quiz",
       },
       assignment: {
         type: Schema.Types.ObjectId,
-        ref: "Assignment"
+        ref: "Assignment",
       },
       message: {
-        type: String
+        type: String,
       },
       date: {
         type: Date,
-        default: Date.now
-      }
-    }
-  ]
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("NotificationCenter", NotificationSchema);

@@ -15,7 +15,7 @@ router.post(
     check("name", "Name is required").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
     check("roll", "Roll is required").not().isEmpty(),
-    check("password", "Password with length of min 6 charachters").isLength({
+    check("password", "Password with length of min 8 charachters").isLength({
       min: 8,
     }),
   ],
@@ -35,13 +35,10 @@ router.post(
           .json({ errors: [{ msg: "User already exists" }] });
       }
 
-      const avatar = "default.png";
-
       user = new User({
         name,
         email,
         roll,
-        avatar,
         password,
       });
 

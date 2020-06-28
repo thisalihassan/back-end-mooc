@@ -171,22 +171,22 @@ router.post("/uploadquiz", [auth], async (req, res) => {
   }
   try {
     const { questions, id } = req.body;
-    let notify = await Notification.findOne({
+    let notify = await Notification.find({
       "notification.quiz": id,
-    }).select({
-      notification: {
-        $elemMatch: {
-          quiz: id,
-        },
-      },
     });
+    console.log(notify.length);
     if (notify) {
-      const id2 = notify.notification[0]._id;
-      notify = await Notification.findOne({
-        "notification._id": id2,
-      });
-      notify.notification.pull({ _id: id2 });
-      await notify.save();
+      for (let i = 0; i < notify.length; i++) {
+        let id2 = notify[i].notification.filter((x) => x.quiz == id);
+        id2 = id2[0]._id;
+
+        let notify2 = await Notification.findOne({
+          "notification._id": id2,
+        });
+
+        notify2.notification.pull({ _id: id2 });
+        await notify2.save();
+      }
     }
 
     let quiz = await Quiz.findById({ _id: id }).populate("course", ["name"]);
@@ -212,22 +212,20 @@ router.post("/updatequiz/:id", [auth], async (req, res) => {
   }
 
   try {
-    let notify = await Notification.findOne({
+    let notify = await Notification.find({
       "notification.quiz": req.params.id,
-    }).select({
-      notification: {
-        $elemMatch: {
-          quiz: req.params.id,
-        },
-      },
     });
     if (notify) {
-      const id = notify.notification[0]._id;
-      notify = await Notification.findOne({
-        "notification._id": id,
-      });
-      notify.notification.pull({ _id: id });
-      await notify.save();
+      for (let i = 0; i < notify.length; i++) {
+        let id2 = notify[i].notification.filter((x) => x.quiz == req.params.id);
+        id2 = id[0]._id;
+
+        let notify2 = await Notification.findOne({
+          "notification._id": id2,
+        });
+        notify2.notification.pull({ _id: id2 });
+        await notify2.save();
+      }
     }
     const { title, autocheck, marks, course, time } = req.body;
     console.log(marks);
@@ -310,24 +308,29 @@ router.post("/deletequiz/:id", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    let notify = await Notification.findOne({
+    let notify = await Notification.find({
       "notification.quiz": req.params.id,
-    }).select({
-      notification: {
-        $elemMatch: {
-          quiz: req.params.id,
-        },
-      },
     });
     if (notify) {
-      const id = notify.notification[0]._id;
-      notify = await Notification.findOne({
-        "notification._id": id,
-      });
-      notify.notification.pull({ _id: id });
-      await notify.save();
+      for (let i = 0; i < notify.length; i++) {
+        let id2 = notify[i].notification.filter((x) => x.quiz == req.params.id);
+        id2 = id2[0]._id;
+
+        let notify2 = await Notification.findOne({
+          "notification._id": id2,
+        });
+        notify2.notification.pull({ _id: id2 });
+        await notify2.save();
+      }
     }
-    await Quiz.findOneAndRemove({ _id: req.params.id });
+    let getQuiz = await Quiz.find({
+      $or: [{ _id: req.params.id }, { quiz: req.params.id }],
+    });
+    console.log(getQuiz.length);
+    for (let i = 0; i < getQuiz.length; i++) {
+      await Quiz.findOneAndRemove({ _id: getQuiz[i]._id });
+    }
+
     return res.json({ msg: "Quiz deleted" });
   } catch (err) {
     console.error(err.message);

@@ -288,8 +288,6 @@ router.post(
     try {
       //See if user exists
       User.findOne({ email: req.body.email }, function (err, user) {
-        console.log(user);
-
         if (!user)
           return res
             .status(400)
@@ -300,13 +298,13 @@ router.post(
           _userId: user._id,
           token: crypto.randomBytes(16).toString("hex"),
         });
-        console.log(token);
+
         // Save the token
         token.save(function (err) {
           if (err) {
             return res.status(500).send({ msg: err.message });
           }
-          console.log(req.body.email);
+
           // Send the email
           var gmailAuth = {
             type: "oauth2",

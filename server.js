@@ -162,8 +162,8 @@ app.get("/api/graph", (req, res) => {
 let http;
 exports.http = http = require("http").createServer(app);
 require("./socket");
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 http.listen(PORT, function () {
-  console.log("listening on *:5001");
+  console.log("listening on *:5000");
 });

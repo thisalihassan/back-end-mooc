@@ -44,13 +44,13 @@ router.post("/getmyrooms", [auth], async (req, res) => {
       let room = await Room.find({
         course: { $in: course },
       }).populate("course", ["name"]);
-      console.log(room);
+
       return res.json(room);
     } else {
       let room = await Room.find({
         user: req.user.id,
       }).populate("course", ["name"]);
-      console.log(room);
+
       return res.json(room);
     }
   } catch (err) {

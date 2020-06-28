@@ -10,7 +10,7 @@ router.post("/SendMessage", async (req, res) => {
   }
   const { room, Message } = req.body;
   const MessageFields = {};
-  console.log(req.body.Message.text);
+
   MessageFields.room = room;
   if (Message) MessageFields.Message = Message;
   try {

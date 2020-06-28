@@ -50,23 +50,24 @@ router.post("/remove/:id", [auth], async (req, res) => {
   }
   try {
     let assign = await Assignment.findOne({ "assignment._id": req.params.id });
-    let notify = await Notification.findOne({
+    let notify = await Notification.find({
       "notification.assignment": req.params.id,
-    }).select({
-      notification: {
-        $elemMatch: {
-          assignment: req.params.id,
-        },
-      },
     });
     if (notify) {
-      const id = notify.notification[0]._id;
-      notify = await Notification.findOne({
-        "notification._id": id,
-      });
-      notify.notification.pull({ _id: id });
-      await notify.save();
+      for (let i = 0; i < notify.length; i++) {
+        let id = notify[i].notification.filter(
+          (x) => x.assignment == req.params.id
+        );
+        id = id[0]._id;
+
+        let notify2 = await Notification.findOne({
+          "notification._id": id,
+        });
+        notify2.notification.pull({ _id: id });
+        await notify2.save();
+      }
     }
+
     if (assign) {
       if (assign.assignment.length === 1) {
         await Assignment.findOneAndRemove({ "assignment._id": req.params.id });
@@ -90,22 +91,22 @@ router.post("/edit/:id", [auth], async (req, res) => {
 
   try {
     const { file, title, duedate } = req.body;
-    let notify = await Notification.findOne({
+    let notify = await Notification.find({
       "notification.assignment": req.params.id,
-    }).select({
-      notification: {
-        $elemMatch: {
-          assignment: req.params.id,
-        },
-      },
     });
     if (notify) {
-      const id = notify.notification[0]._id;
-      notify = await Notification.findOne({
-        "notification._id": id,
-      });
-      notify.notification.pull({ _id: id });
-      await notify.save();
+      for (let i = 0; i < notify.length; i++) {
+        let id = notify[i].notification.filter(
+          (x) => x.assignment == req.params.id
+        );
+        id = id[0]._id;
+
+        let notify2 = await Notification.findOne({
+          "notification._id": id,
+        });
+        notify2.notification.pull({ _id: id });
+        await notify2.save();
+      }
     }
     let assign = await Assignment.updateOne(
       { "assignment._id": req.params.id },

@@ -3,7 +3,8 @@ const router = express.Router();
 const Notification = require("../../models/Notification");
 const { validationResult } = require("express-validator");
 const auth = require("../../middleware/auth");
-
+const FollowCourse = require("../../models/CourseFollower");
+const e = require("express");
 router.post("/", async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -11,8 +12,9 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const { course, anouncements, quiz, assignment, user, message } = req.body;
-    let notify = await Notification.findOne({ course: course });
+    const { course, anouncements, quiz, assignment, message } = req.body;
+    let getUsers = await FollowCourse.findOne({ course: course });
+
     const notification = {};
     if (quiz) {
       notification.quiz = quiz;
@@ -28,18 +30,32 @@ router.post("/", async (req, res) => {
       notification.message = message;
     }
 
-    if (notify) {
-      notify = await Notification.updateOne(
-        { course: course },
-        { $push: { notification: notification } },
-        { new: true }
-      );
-      return res.json(notify);
+    if (getUsers) {
+      let size = getUsers.CourseFollowers.length;
+
+      for (let i = 0; i < size; i++) {
+        let user = getUsers.CourseFollowers[i];
+
+        let notify = await Notification.findOne({
+          user: user,
+        });
+
+        if (notify) {
+          let count = notify.counter + 1;
+          notify.counter = count;
+          notify.notification.unshift(notification);
+          await notify.save();
+        } else {
+          notify = new Notification({ user: user });
+          notify.notification.push(notification);
+          await notify.save();
+        }
+      }
+
+      return res.json(getUsers);
     }
-    notify = new Notification({ user: user, course: course });
-    notify.notification.push(notification);
-    await notify.save();
-    return res.json(notify);
+
+    return res.json(getUsers);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -53,12 +69,14 @@ router.post("/getNotification", auth, async (req, res) => {
   }
 
   try {
-    const { course } = req.body;
-    let notify = await Notification.find({
-      $or: [{ course: { $in: course } }],
+    let notify = await Notification.findOne({
+      user: req.user.id,
     });
 
-    return res.json(notify);
+    if (notify) {
+      return res.json(notify);
+    }
+    return res.json(false);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
