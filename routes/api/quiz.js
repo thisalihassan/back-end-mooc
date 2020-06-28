@@ -55,7 +55,7 @@ router.post("/studentsubmit", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { course, questions, quiz, title, autocheck } = req.body;
+    let { course, questions, quiz, title, autocheck } = req.body;
     console.log(quiz);
     let refquiz = await Quiz.findOne({
       _id: quiz,
@@ -76,8 +76,17 @@ router.post("/studentsubmit", [auth], async (req, res) => {
         const markPerQues = refquiz.marks / refquiz.questions.length;
         let marks = 0;
         let j = 0;
-        for (let i = len - 1; i >= 0; i -= 1, j += 1) {
-          if (refquiz.questions[i].myAnswer === questions[j].myAnswer) {
+        questions = questions.sort((a, b) =>
+          a.question > b.question ? 1 : -1
+        );
+        console.log(questions);
+        refquiz.questions = refquiz.questions.sort((a, b) =>
+          a.question > b.question ? 1 : -1
+        );
+        console.log("Gets");
+        console.log(refquiz.questions);
+        for (let i = 0; i < len; i++) {
+          if (refquiz.questions[i].myAnswer === questions[i].myAnswer) {
             marks += markPerQues;
           }
         }
