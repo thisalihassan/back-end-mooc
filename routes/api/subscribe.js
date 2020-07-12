@@ -3,6 +3,7 @@ const router = express.Router();
 const Subscribe = require("../../models/Subscribe");
 const Rating = require("../../models/Rating");
 const FollowCourse = require("../../models/CourseFollower");
+const Notification = require("../../models/Notification");
 const Courses = require("../../models/Courses");
 const { check, validationResult } = require("express-validator");
 const auth = require("../../middleware/auth");
@@ -184,6 +185,12 @@ router.post("/unfollow", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
+    let notify = await Notification.findOne({
+      user: req.body.id,
+    });
+    if (notify) {
+      notify.notification.pull({ follwer: req.user.id });
+    }
     let follow = await Subscribe.findOne({ user: req.user.id });
     if (follow) {
       follow.following.pull({ _id: req.body.id });

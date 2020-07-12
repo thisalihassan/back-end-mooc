@@ -9,6 +9,7 @@ let NotificationSchema = new Schema({
   counter: { type: Number, default: 1 },
   notification: [
     {
+      follower: { type: Schema.Types.ObjectId, ref: "user" },
       mycourse: {
         type: Schema.Types.ObjectId,
         ref: "courses",

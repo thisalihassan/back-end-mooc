@@ -152,6 +152,7 @@ io.on("connection", function (socket) {
       console.log(error);
     }
     socket.broadcast.emit("show_notification", {
+      follower: data.follower,
       message: data.message,
       anouncements: data.anouncements,
       user: data.user,

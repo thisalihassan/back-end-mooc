@@ -12,7 +12,15 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const { course, anouncements, quiz, assignment, message } = req.body;
+    const {
+      course,
+      anouncements,
+      quiz,
+      assignment,
+      message,
+      following,
+      follower,
+    } = req.body;
     let getUsers = await FollowCourse.findOne({ course: course });
 
     const notification = {};
@@ -28,6 +36,23 @@ router.post("/", async (req, res) => {
 
     if (message) {
       notification.message = message;
+    }
+    if (following) {
+      notification.follower = follower;
+      let notify = await Notification.findOne({
+        user: following,
+      });
+      if (notify) {
+        let count = notify.counter + 1;
+        notify.counter = count;
+        notify.notification.unshift(notification);
+        await notify.save();
+      } else {
+        notify = new Notification({ user: following });
+        notify.notification.push(notification);
+        await notify.save();
+      }
+      return res.json(notify);
     }
 
     if (getUsers) {
