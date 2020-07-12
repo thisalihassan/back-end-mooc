@@ -187,20 +187,7 @@ router.post(
               }
             });
 
-            const payload = {
-              user: {
-                id: user.id,
-              },
-            };
-            jwt.sign(
-              payload,
-              config.get("jwtSecret"),
-              { expiresIn: 360000 }, //3600
-              (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-              }
-            );
+            return res.json("done");
           });
         });
       });
@@ -252,20 +239,8 @@ router.post(
             if (err) {
               return res.status(500).send({ msg: err.message });
             }
-            const payload = {
-              user: {
-                id: user.id,
-              },
-            };
-            jwt.sign(
-              payload,
-              config.get("jwtSecret"),
-              { expiresIn: 360000 }, //3600
-              (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-              }
-            );
+
+            return res.json("done");
           });
         });
       });

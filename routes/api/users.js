@@ -93,7 +93,7 @@ router.post(
             if (err) {
               return res.status(500).send({ msghere: err.message });
             }
-            res.status(200).send(user._id);
+            return res.send(user._id);
           });
         });
       });
