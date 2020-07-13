@@ -4,12 +4,14 @@ const {
   getUser,
   getUsersInRoom,
 } = require("./routes/api/room");
+const { app } = require("./server");
 const { http } = require("./server");
 const io = require("socket.io")(http);
 const axios = require("axios");
 
 io.on("connect", (socket) => {
   socket.on("join", ({ name, myroom, check, id }, callback) => {
+    console.log(myroom);
     const { error, user } = addUser({ id: id, name, myroom, check });
     if (error) return callback(error);
     socket.join(user.room);
@@ -48,6 +50,19 @@ io.on("connect", (socket) => {
     } catch (error) {}
 
     callback();
+  });
+  app.post("/getModal", async (req, res) => {
+    try {
+      const { id } = req.body;
+      console.log(id);
+      io.to(id).emit("modal", {
+        value: id,
+      });
+      return res.json(id);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server Error");
+    }
   });
   socket.on("CallRing", (tuple, callback) => {
     const { name, userid, URL } = tuple;
@@ -118,6 +133,7 @@ io.on("connect", (socket) => {
     io.to(myroom).emit("userNavigate", {
       user: id,
     });
+
     io.to(myroom).emit("message", {
       text: `${name} has been kicked out of the room for 30min.`,
     });

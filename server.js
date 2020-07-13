@@ -159,6 +159,7 @@ app.get("/api/graph", (req, res) => {
       console.log("Done");
     });
 });
+exports.app = app;
 let http;
 exports.http = http = require("http").createServer(app);
 require("./socket");
