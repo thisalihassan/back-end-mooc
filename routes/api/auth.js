@@ -251,7 +251,6 @@ router.post(
 
 router.post(
   "/resend",
-  [check("email", "Please include a valid email").isEmail()],
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -260,12 +259,15 @@ router.post(
 
     try {
       //See if user exists
-      User.findOne({ email: req.body.email }, function (err, user) {
+      User.findOne({ _id: req.body.id }, function (err, user) {
         if (!user)
           return res
             .status(400)
-            .send({ msg: "We were unable to find a user with that email." });
-
+            .json({ errors: [{ msg: "We were unable to find a user with that email." }] });
+        if (user.isVerified)
+          return res
+            .status(400)
+            .json({ errors: [{ msg: "User is already verified" }] });
         // Create a verification token, save it, and send email
         var token = new Token({
           _userId: user._id,
