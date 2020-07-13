@@ -301,9 +301,11 @@ router.post(
             subject: "Account Verification Token",
             text:
               "Hello,\n\n" +
-              "Please enter this pascode\n\n" +
+              "Please verify your account by clicking the link: \nhttps://moocfyp.herokuapp.com/conformation/?id=" +
+              user._id +
+              "\n\nYour Token: " +
               token.token +
-              ".\n",
+              "\n",
           };
           transporter.sendMail(mailOptions, function (err) {
             if (err) {
