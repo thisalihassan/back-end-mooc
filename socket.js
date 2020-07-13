@@ -10,7 +10,6 @@ const io = require("socket.io")(http);
 const axios = require("axios");
 const Room = require("./models/Room");
 io.on("connect", (socket) => {
-  socket.removeAllListeners();
   socket.on("join", ({ name, myroom, check, id }, callback) => {
     console.log(myroom);
     const { error, user } = addUser({ id: id, name, myroom, check });
@@ -163,7 +162,6 @@ io.on("connect", (socket) => {
 });
 
 io.on("connection", function (socket) {
-  socket.removeAllListeners();
   socket.on("new_notification", function (data) {
     try {
       const body = data.body;
