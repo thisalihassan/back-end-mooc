@@ -155,23 +155,21 @@ router.post(
 
       Token.findOne({ token: mytoken }, function (err, token) {
         if (!token)
-          return res.status(400).send({
-            type: "not-verified",
-            msg:
-              "We were unable to find a valid token. Your token may have expired.",
-          });
-
+          return res
+            .status(400)
+            .json({ errors: [{ msg: "We were unable to find a valid token. Your token may have expired." }] });
         // If we found a token, find a matching user
         User.findOne({ _id: token._userId, _id: myid }, function (err, user) {
           if (!user)
             return res
               .status(400)
-              .send({ msg: "We were unable to find a user for this token." });
+              .json({ errors: [{ msg: "We were unable to find a user for this token." }] });
+
           if (user.isVerified)
-            return res.status(400).send({
-              type: "already-verified",
-              msg: "This user has already been verified.",
-            });
+            return res
+              .status(400)
+              .json({ errors: [{ msg: "This user has already been verified." }] });
+
 
           // Verify and save the user
           user.isVerified = true;
