@@ -51,6 +51,7 @@ io.on("connect", (socket) => {
 
     callback();
   });
+
   app.post("/getModal", async (req, res) => {
     try {
       let { id, user } = req.body;
@@ -59,12 +60,14 @@ io.on("connect", (socket) => {
         _id: id,
       });
       let match = user == room.user;
-      socket.broadcast.emit("calloff", {
-        course: room.course,
-        user: user,
-        id: id,
-        ownerclose: match,
-      });
+      if (room) {
+        socket.broadcast.emit("calloff", {
+          course: room.course,
+          user: user,
+          id: id,
+          ownerclose: match,
+        });
+      }
       return res.json(id);
     } catch (err) {
       console.error(err.message);
