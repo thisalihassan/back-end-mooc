@@ -223,18 +223,11 @@ router.post("/rate", [auth], async (req, res) => {
       myrating = await Rating(rating);
       await myrating.save();
       return res.json(myrating);
-    }
-    let myrating2 = await Rating.findOne({ course: course }).select({
-      CourseRate: {
-        $elemMatch: {
-          student: req.user.id,
-        },
-      },
-    });
-    if (!myrating2) {
-      myrating.push({ CourseRate: CourseRate, TeacherRate: TeacherRate });
+    } else {
+      myrating.CourseRate.push(CourseRate);
+      myrating.TeacherRate.push(TeacherRate);
       await myrating.save();
-      return res.json(rating);
+      return res.json(myrating);
     }
   } catch (err) {
     console.error(err.message);
