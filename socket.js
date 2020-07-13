@@ -8,7 +8,7 @@ const { app } = require("./server");
 const { http } = require("./server");
 const io = require("socket.io")(http);
 const axios = require("axios");
-
+const Room = require("./models/Room");
 io.on("connect", (socket) => {
   socket.on("join", ({ name, myroom, check, id }, callback) => {
     console.log(myroom);
