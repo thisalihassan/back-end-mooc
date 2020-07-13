@@ -53,16 +53,17 @@ io.on("connect", (socket) => {
   });
   app.post("/getModal", async (req, res) => {
     try {
-      const { id } = req.body;
+      let { id, user } = req.body;
 
       let room = await Room.findOne({
         _id: id,
       });
-
+      let match = user == room.user;
       socket.broadcast.emit("calloff", {
         course: room.course,
         user: room.user,
         id: id,
+        ownerclose: match,
       });
       return res.json(id);
     } catch (err) {
