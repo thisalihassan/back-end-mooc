@@ -259,7 +259,7 @@ router.post(
 
     try {
       //See if user exists
-      User.findOne({ _id: req.body.id }, function (err, user) {
+      User.findOne({ $or: [{ _id: req.body.id }, { _id: req.body.email }] }, function (err, user) {
         if (!user)
           return res
             .status(400)
