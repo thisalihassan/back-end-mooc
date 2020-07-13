@@ -61,7 +61,7 @@ io.on("connect", (socket) => {
       let match = user == room.user;
       socket.broadcast.emit("calloff", {
         course: room.course,
-        user: room.user,
+        user: user,
         id: id,
         ownerclose: match,
       });
