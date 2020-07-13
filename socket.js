@@ -54,12 +54,11 @@ io.on("connect", (socket) => {
   app.post("/getModal", async (req, res) => {
     try {
       const { id } = req.body;
-      console.log(id);
 
       let room = await Room.findOne({
         _id: id,
       });
-      console.log(room.course);
+
       socket.broadcast.emit("calloff", {
         course: room.course,
         user: room.user,
