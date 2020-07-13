@@ -58,6 +58,12 @@ io.on("connect", (socket) => {
       io.to(id).emit("modal", {
         value: id,
       });
+      let room = await Room.findOne({
+        _id: id,
+      });
+      socket.broadcast.emit("calloff", {
+        value: room.course,
+      });
       return res.json(id);
     } catch (err) {
       console.error(err.message);
