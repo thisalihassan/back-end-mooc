@@ -55,14 +55,15 @@ io.on("connect", (socket) => {
     try {
       const { id } = req.body;
       console.log(id);
-      io.to(id).emit("modal", {
-        value: id,
-      });
+
       let room = await Room.findOne({
         _id: id,
       });
+      console.log(room.course);
       socket.broadcast.emit("calloff", {
-        value: room.course,
+        course: room.course,
+        user: room.user,
+        id: id,
       });
       return res.json(id);
     } catch (err) {
