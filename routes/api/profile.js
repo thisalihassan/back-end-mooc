@@ -408,4 +408,27 @@ router.post("/delete", auth, async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+router.post("/admindelete", auth, async (req, res) => {
+  try {
+    let user = await User.findOne({ _id: req.body.id });
+    if (user) {
+      let res = await Courses.find({ user: req.body.id });
+      for (let i = 0; i < res.data.length; i++) {
+        const config = { headers: { "Content-Type": "application/json" } };
+        axios.delete(
+          "https://moocback.herokuapp.com/api/Courses/delete/" + id,
+          {},
+          config
+        );
+      }
+      await Profile.findOneAndRemove({ user: req.body.id });
+      await User.findOneAndRemove({ _id: req.body.id });
+      return res.json({ msg: "User deleted" });
+    }
+    return res.json({ msg: "Wrong Password Entered" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 module.exports = router;
