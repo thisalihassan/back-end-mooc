@@ -415,7 +415,7 @@ router.post("/admindelete", auth, async (req, res) => {
       for (let i = 0; i < res.length; i++) {
         const config = { headers: { "Content-Type": "application/json" } };
         axios.delete(
-          "https://moocback.herokuapp.com/api/Courses/delete/" + id,
+          "https://moocback.herokuapp.com/api/Courses/delete/" + res[i]._id,
           {},
           config
         );
