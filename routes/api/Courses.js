@@ -67,7 +67,7 @@ router.post("/", [auth], async (req, res) => {
 });
 
 //delete
-router.delete("/delete/:c_id", [auth], async (req, res) => {
+router.delete("/delete/:c_id", async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -80,8 +80,14 @@ router.delete("/delete/:c_id", [auth], async (req, res) => {
     }
     await Room.findOneAndRemove({ course: req.params.c_id });
     let follow = await Subscribe.find();
-    await Quiz.findOneAndRemove({ course: req.params.c_id });
-    await Assignment.findOneAndRemove({ course: req.params.c_id });
+    let quiz = await Quiz.find({ course: req.params.c_id });
+    for (let i = 0; i < quiz.length; i++) {
+      await Quiz.findOneAndRemove({ _id: quiz[i]._id });
+    }
+    let assign = await Assignment.find({ course: req.params.c_id });
+    for (let i = 0; i < assign.length; i++) {
+      await Assignment.findOneAndRemove({ _id: assign[i]._id });
+    }
     if (follow) {
       const length = follow.length;
       for (let i = 0; i < length; i++) {

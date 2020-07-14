@@ -4,6 +4,10 @@ const auth = require("../../middleware/auth");
 const Profile = require("../../models/profile");
 const User = require("../../models/Users");
 const Report = require("../../models/report");
+const Courses = require("../../models/Courses");
+const Anouncement = require("../../models/Anouncements");
+const Quiz = require("../../models/Quiz");
+const Assignment = require("../../models/Assignment");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 // @route   Get api/profile/me
@@ -385,8 +389,17 @@ router.post("/delete", auth, async (req, res) => {
           .status(400)
           .json({ errors: [{ msg: "Invalid Credentails" }] });
       }
-      await Profile.findOneAndRemove({ user: req.body.id });
-      await User.findOneAndRemove({ _id: req.body.id });
+      let res = await Courses.find({ user: req.user.id });
+      for (let i = 0; i < res.data.length; i++) {
+        const config = { headers: { "Content-Type": "application/json" } };
+        axios.delete(
+          "https://moocback.herokuapp.com/api/Courses/delete/" + id,
+          {},
+          config
+        );
+      }
+      await Profile.findOneAndRemove({ user: req.user.id });
+      await User.findOneAndRemove({ _id: req.user.id });
       return res.json({ msg: "User deleted" });
     }
     return res.json({ msg: "Wrong Password Entered" });
