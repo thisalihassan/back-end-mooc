@@ -156,33 +156,27 @@ router.post(
 
       Token.findOne({ token: mytoken }, function (err, token) {
         if (!token)
-          return res
-            .status(400)
-            .json({
-              errors: [
-                {
-                  msg:
-                    "We were unable to find a valid token. Your token may have expired.",
-                },
-              ],
-            });
+          return res.status(400).json({
+            errors: [
+              {
+                msg:
+                  "We were unable to find a valid token. Your token may have expired.",
+              },
+            ],
+          });
         // If we found a token, find a matching user
         User.findOne({ _id: token._userId, _id: myid }, function (err, user) {
           if (!user)
-            return res
-              .status(400)
-              .json({
-                errors: [
-                  { msg: "We were unable to find a user for this token." },
-                ],
-              });
+            return res.status(400).json({
+              errors: [
+                { msg: "We were unable to find a user for this token." },
+              ],
+            });
 
           if (user.isVerified)
-            return res
-              .status(400)
-              .json({
-                errors: [{ msg: "This user has already been verified." }],
-              });
+            return res.status(400).json({
+              errors: [{ msg: "This user has already been verified." }],
+            });
 
           // Verify and save the user
           user.isVerified = true;
@@ -225,9 +219,10 @@ router.post(
     }
 
     try {
-      mytoken = req.body.token;
-      myid = req.body.email;
-      password = req.body.password;
+      let mytoken = req.body.token;
+      let myid = req.body.email;
+      myid = myid.toLowerCase();
+      let password = req.body.password;
       const salt = await bcrypt.genSalt(10);
       mypassword = await bcrypt.hash(password, salt);
       Token.findOne({ token: mytoken }, function (err, token) {
@@ -274,13 +269,9 @@ router.post("/resend", async (req, res) => {
       { $or: [{ _id: req.body.id }, { _id: req.body.email }] },
       function (err, user) {
         if (!user)
-          return res
-            .status(400)
-            .json({
-              errors: [
-                { msg: "We were unable to find a user with that email." },
-              ],
-            });
+          return res.status(400).json({
+            errors: [{ msg: "We were unable to find a user with that email." }],
+          });
         if (user.isVerified)
           return res
             .status(400)
