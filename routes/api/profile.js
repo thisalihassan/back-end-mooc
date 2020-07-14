@@ -4,10 +4,8 @@ const auth = require("../../middleware/auth");
 const Profile = require("../../models/profile");
 const User = require("../../models/Users");
 const Report = require("../../models/report");
+const axios = require("axios");
 const Courses = require("../../models/Courses");
-const Anouncement = require("../../models/Anouncements");
-const Quiz = require("../../models/Quiz");
-const Assignment = require("../../models/Assignment");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 // @route   Get api/profile/me
