@@ -229,6 +229,34 @@ router.post("/todayassignments", [auth], async (req, res) => {
     })
       .sort({ "assignment.duedate": 1 })
       .populate("course", ["name"]);
+    const myassignment = [];
+    for (let i = 0; i < assign.length; i++) {
+      for (let j = 0; j < assign[i].submitassignment.length; j++) {
+        if (assign[i].submitassignment[j].user === req.user.id)
+          myassignment.push(assign[i].submitassignment[j].assignment);
+      }
+    }
+
+    const newassignment = [];
+
+    for (let i = 0; i < assign.length; i++) {
+      const assignment = [];
+      const myass = {};
+      for (let j = 0; j < assign[i].assignment.length; j++) {
+        const mthc = myassignment.find(
+          (x) => x === assign[i].assignment[j]._id
+        );
+
+        if (!mthc) {
+          assignment.push(assign[i].assignment[j]);
+        }
+      }
+      myass.course = assign[i].course;
+      myass.assignment = assignment;
+      newassignment.push(myass);
+    }
+    assign = newassignment;
+
     return res.json(assign);
   } catch (err) {
     console.error(err.message);
