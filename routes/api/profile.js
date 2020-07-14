@@ -410,6 +410,7 @@ router.post("/delete", auth, async (req, res) => {
 });
 router.post("/admindelete", auth, async (req, res) => {
   try {
+    console.log("here");
     let user = await User.findOne({ _id: req.body.id });
     if (user) {
       let res = await Courses.find({ user: req.body.id });

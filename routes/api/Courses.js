@@ -81,12 +81,17 @@ router.delete("/delete/:c_id", async (req, res) => {
     await Room.findOneAndRemove({ course: req.params.c_id });
     let follow = await Subscribe.find();
     let quiz = await Quiz.find({ course: req.params.c_id });
-    for (let i = 0; i < quiz.length; i++) {
-      await Quiz.findOneAndRemove({ _id: quiz[i]._id });
+    if (quiz) {
+      for (let i = 0; i < quiz.length; i++) {
+        await Quiz.findOneAndRemove({ _id: quiz[i]._id });
+      }
     }
+
     let assign = await Assignment.find({ course: req.params.c_id });
-    for (let i = 0; i < assign.length; i++) {
-      await Assignment.findOneAndRemove({ _id: assign[i]._id });
+    if (assign) {
+      for (let i = 0; i < assign.length; i++) {
+        await Assignment.findOneAndRemove({ _id: assign[i]._id });
+      }
     }
     if (follow) {
       const length = follow.length;
