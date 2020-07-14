@@ -51,9 +51,12 @@ router.post("/delete", async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   const { room } = req.body;
+  console.log(room);
   try {
     let messageProfile = await MessageProfile.findOneAndRemove({ room: room });
     return res.json(messageProfile);
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 });
 module.exports = router;
