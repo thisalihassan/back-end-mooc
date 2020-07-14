@@ -387,11 +387,11 @@ router.post("/delete", auth, async (req, res) => {
           .status(400)
           .json({ errors: [{ msg: "Invalid Credentails" }] });
       }
-      let res = await Courses.find({ user: req.user.id });
-      for (let i = 0; i < res.length; i++) {
+      let course = await Courses.find({ user: req.user.id });
+      for (let i = 0; i < course.length; i++) {
         const config = { headers: { "Content-Type": "application/json" } };
         axios.delete(
-          "https://moocback.herokuapp.com/api/Courses/delete/" + id,
+          "https://moocback.herokuapp.com/api/Courses/delete/" + course[i]._id,
           {},
           config
         );
@@ -411,11 +411,11 @@ router.post("/admindelete", auth, async (req, res) => {
     console.log("here");
     let user = await User.findOne({ _id: req.body.id });
     if (user) {
-      let res = await Courses.find({ user: req.body.id });
-      for (let i = 0; i < res.length; i++) {
+      let course = await Courses.find({ user: req.body.id });
+      for (let i = 0; i < course.length; i++) {
         const config = { headers: { "Content-Type": "application/json" } };
         axios.delete(
-          "https://moocback.herokuapp.com/api/Courses/delete/" + res[i]._id,
+          "https://moocback.herokuapp.com/api/Courses/delete/" + course[i]._id,
           {},
           config
         );
