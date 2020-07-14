@@ -61,9 +61,10 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     try {
+      email = email.toLowerCase();
       //See if user exists
       let user = await User.findOne({ email });
       if (!user) {
@@ -157,19 +158,31 @@ router.post(
         if (!token)
           return res
             .status(400)
-            .json({ errors: [{ msg: "We were unable to find a valid token. Your token may have expired." }] });
+            .json({
+              errors: [
+                {
+                  msg:
+                    "We were unable to find a valid token. Your token may have expired.",
+                },
+              ],
+            });
         // If we found a token, find a matching user
         User.findOne({ _id: token._userId, _id: myid }, function (err, user) {
           if (!user)
             return res
               .status(400)
-              .json({ errors: [{ msg: "We were unable to find a user for this token." }] });
+              .json({
+                errors: [
+                  { msg: "We were unable to find a user for this token." },
+                ],
+              });
 
           if (user.isVerified)
             return res
               .status(400)
-              .json({ errors: [{ msg: "This user has already been verified." }] });
-
+              .json({
+                errors: [{ msg: "This user has already been verified." }],
+              });
 
           // Verify and save the user
           user.isVerified = true;
@@ -249,21 +262,25 @@ router.post(
   }
 );
 
-router.post(
-  "/resend",
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+router.post("/resend", async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-    try {
-      //See if user exists
-      User.findOne({ $or: [{ _id: req.body.id }, { _id: req.body.email }] }, function (err, user) {
+  try {
+    //See if user exists
+    User.findOne(
+      { $or: [{ _id: req.body.id }, { _id: req.body.email }] },
+      function (err, user) {
         if (!user)
           return res
             .status(400)
-            .json({ errors: [{ msg: "We were unable to find a user with that email." }] });
+            .json({
+              errors: [
+                { msg: "We were unable to find a user with that email." },
+              ],
+            });
         if (user.isVerified)
           return res
             .status(400)
@@ -318,13 +335,13 @@ router.post(
               );
           });
         });
-      });
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Server Error");
-    }
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
   }
-);
+});
 
 router.post("/search", [auth], async (req, res) => {
   const errors = validationResult(req);

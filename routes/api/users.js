@@ -24,8 +24,8 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { name, email, roll, password } = req.body;
-
+    let { name, email, roll, password } = req.body;
+    email = email.toLowerCase();
     try {
       //See if user exists
       let user = await User.findOne({ email });
