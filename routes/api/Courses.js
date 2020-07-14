@@ -110,6 +110,7 @@ router.delete("/delete/:c_id", async (req, res) => {
     course = await Courses.findByIdAndRemove({ _id: req.params.c_id });
     return res.json("Successful");
   } catch (err) {
+    console.log("ejhrkjs");
     console.error(err.message);
     res.status(500).send("Server Error");
   }
