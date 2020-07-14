@@ -116,7 +116,10 @@ router.post("/approveProfile", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    await Report.findOneAndRemove({ reported: req.body.id });
+    let fi = await Report.findOne({ reported: req.body.id });
+    let ress = await Report.findOneAndRemove({ reported: req.body.id });
+    console.log(ress);
+    console.log(fi);
     return res.json(null);
   } catch (err) {
     console.error(err.message);

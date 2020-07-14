@@ -15,7 +15,9 @@ const Profile = require("../../models/profile");
 // @access  public
 router.get("/", auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    let user = await User.findById(req.user.id).select("-password");
+    user.roll = user.roll.toLowerCase();
+    user = user;
     res.json(user);
   } catch (err) {
     console.error(err.message);
