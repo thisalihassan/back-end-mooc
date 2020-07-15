@@ -162,7 +162,7 @@ router.post("/uploadStream", async (req, res) => {
     let { room, url } = req.body;
     let getID = await Room.findOne({ _id: room });
     let files = await Files.findOne({ course: getID.course });
-    let course = req.body.id;
+    let course = getID.course;
     var d = new Date();
     var n = d.toString().split("2020");
     if (!files) {
