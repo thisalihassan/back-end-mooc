@@ -179,7 +179,7 @@ router.post("/uploadStream", async (req, res) => {
       await files.save();
       return res.json(files);
     }
-    const le = files.lecturefiles.length -1;
+    const le = files.lecturefiles.length + 1;
     files.lecturefiles.push({
       files: url,
       fileNames: "Lecture " + le,
