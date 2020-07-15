@@ -72,6 +72,7 @@ router.post("/studentsubmit", [auth], async (req, res) => {
     }
     if (autocheck) {
       if (questions) {
+        console.log(refquiz.questions.length);
         const len = questions.length;
         const markPerQues = refquiz.marks / refquiz.questions.length;
         let marks = 0;

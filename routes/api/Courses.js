@@ -157,6 +157,42 @@ router.post("/uploadFiles", [auth], async (req, res) => {
   }
 });
 
+router.post("/uploadStream", async (req, res) => {
+  try {
+    let { room, url, filename } = req.body;
+    console.log(url + " asd");
+    console.log(filename + " asd");
+    console.log(room);
+    let getID = await Room.findOne({ _id: room });
+    let files = await Files.findOne({ course: getID.course });
+    let course = req.body.id;
+    var d = new Date();
+    var n = d.toString().split("2020");
+    if (!files) {
+      files = new Files({
+        course: course,
+      });
+      files.lecturefiles.push({
+        files: url,
+        fileNames: filename,
+        lecture: "Video Broadcast on " + n[0] + " 2020",
+      });
+      await files.save();
+      return res.json(files);
+    }
+    files.lecturefiles.push({
+      files: url,
+      fileNames: filename,
+      lecture: "Video Broadcast on " + n + " 2020",
+    });
+    await files.save();
+    return res.json(files);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 router.post("/EditFiles", [auth], async (req, res) => {
   try {
     let files = await Files.findOne({ "lecturefiles._id": req.body.id }).select(
