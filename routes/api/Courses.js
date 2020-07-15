@@ -159,10 +159,7 @@ router.post("/uploadFiles", [auth], async (req, res) => {
 
 router.post("/uploadStream", async (req, res) => {
   try {
-    let { room, url, filename } = req.body;
-    console.log(url + " asd");
-    console.log(filename + " asd");
-    console.log(room);
+    let { room, url } = req.body;
     let getID = await Room.findOne({ _id: room });
     let files = await Files.findOne({ course: getID.course });
     let course = req.body.id;
@@ -172,18 +169,20 @@ router.post("/uploadStream", async (req, res) => {
       files = new Files({
         course: course,
       });
+      const le = files.lecturefiles.length;
       files.lecturefiles.push({
         files: url,
-        fileNames: filename,
+        fileNames: "Lecture 1",
         lecture: "Video Broadcast on " + n[0] + " 2020",
       });
       await files.save();
       return res.json(files);
     }
+    const le = files.lecturefiles.length;
     files.lecturefiles.push({
       files: url,
-      fileNames: filename,
-      lecture: "Video Broadcast on " + n + " 2020",
+      fileNames: "Lecture " + le,
+      lecture: "Video Broadcast on " + n[0] + " 2020",
     });
     await files.save();
     return res.json(files);
