@@ -160,6 +160,7 @@ router.post("/uploadFiles", [auth], async (req, res) => {
 router.post("/uploadStream", async (req, res) => {
   try {
     let { room, url } = req.body;
+    console.log("here");
     let getID = await Room.findOne({ _id: room });
     let files = await Files.findOne({ course: getID.course });
     let course = getID.course;
