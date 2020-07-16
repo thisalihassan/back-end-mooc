@@ -104,6 +104,7 @@ router.post("/studentsubmit", [auth], async (req, res) => {
       await mquiz.save();
       return res.json(mquiz);
     }
+    return res.json(null);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
