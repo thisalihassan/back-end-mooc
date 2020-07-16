@@ -58,7 +58,11 @@ router.post("/studentsubmit", [auth], async (req, res) => {
     let { course, questions, quiz, title, autocheck } = req.body;
     let checkExist = await Quiz.findOne({
       user: req.user.id,
+      quiz: quiz,
+      title: "My " + title,
+      course: course,
     });
+
     if (!checkExist) {
       let refquiz = await Quiz.findOne({
         _id: quiz,
@@ -75,7 +79,6 @@ router.post("/studentsubmit", [auth], async (req, res) => {
       }
       if (autocheck) {
         if (questions) {
-          console.log(refquiz.questions.length);
           const len = questions.length;
           const markPerQues = refquiz.marks / refquiz.questions.length;
           let marks = 0;
@@ -83,12 +86,9 @@ router.post("/studentsubmit", [auth], async (req, res) => {
           questions = questions.sort((a, b) =>
             a.question > b.question ? 1 : -1
           );
-          console.log(questions);
           refquiz.questions = refquiz.questions.sort((a, b) =>
             a.question > b.question ? 1 : -1
           );
-          console.log("Gets");
-          console.log(refquiz.questions);
           for (let i = 0; i < len; i++) {
             if (refquiz.questions[i].myAnswer === questions[i].myAnswer) {
               marks += markPerQues;
@@ -104,7 +104,7 @@ router.post("/studentsubmit", [auth], async (req, res) => {
       await mquiz.save();
       return res.json(mquiz);
     }
-    return res.json(null);
+    return res.json("null");
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
