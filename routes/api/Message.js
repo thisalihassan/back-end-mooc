@@ -41,7 +41,9 @@ router.post("/FindMessages", async (req, res) => {
   const { room } = req.body;
   try {
     let messageProfile = await MessageProfile.findOne({ room: room });
-    return res.json(messageProfile.Message);
+    console.log(messageProfile);
+    if (messageProfile) return res.json(messageProfile.Message);
+    return res.json([]);
   } catch (err) {}
 });
 
