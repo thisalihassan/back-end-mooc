@@ -134,7 +134,8 @@ router.post("/findquiz", [auth], async (req, res) => {
 
         if (solvedQioz) {
           for (let i = 0; i < quiz.length; i++) {
-            if (solvedQioz.find((x) => x.quiz !== quiz[i]._id)) {
+            const match = solvedQioz.find((x) => x.quiz === quiz[i]._id);
+            if (!match) {
               arr.push(quiz[i]);
             }
           }
