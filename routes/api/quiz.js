@@ -63,7 +63,7 @@ router.post("/studentsubmit", [auth], async (req, res) => {
     let mquiz = new Quiz({
       course: course,
       user: req.user.id,
-      title: "Solved " + title,
+      title: "My " + title,
       status: "solved",
       quiz: quiz,
     });
