@@ -127,7 +127,19 @@ router.post("/findquiz", [auth], async (req, res) => {
           { user: req.user.id, status: "solved" },
         ],
       }).populate("course", ["name"]);
-
+      if (quiz.length > 0) {
+        const arr = [];
+        const solvedQioz = quiz.filter((x) => x.status == "solved");
+        for (let i = 0; i < quiz.length; i++) {
+          if (!solvedQioz.filter((x) => x.quiz === quiz[i]._id)) {
+            arr.push(quiz[i]);
+          }
+        }
+        for (let i = 0; i < solvedQioz.length; i++) {
+          arr.push(solvedQioz[i]);
+        }
+        return res.json(solvedQioz);
+      }
       return res.json(quiz);
     }
   } catch (err) {
