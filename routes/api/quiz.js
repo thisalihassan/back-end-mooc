@@ -141,7 +141,7 @@ router.post("/findquiz", [auth], async (req, res) => {
           for (let i = 0; i < solvedQioz.length; i++) {
             arr.push(solvedQioz[i]);
           }
-          return arr;
+          return res.json(arr);
         } else {
           return res.json(quiz);
         }
