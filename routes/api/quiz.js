@@ -56,50 +56,54 @@ router.post("/studentsubmit", [auth], async (req, res) => {
   }
   try {
     let { course, questions, quiz, title, autocheck } = req.body;
-    console.log(quiz);
-    let refquiz = await Quiz.findOne({
-      _id: quiz,
-    });
-    let mquiz = new Quiz({
-      course: course,
+    let checkExist = await Quiz.findOne({
       user: req.user.id,
-      title: "My " + title,
-      status: "solved",
-      quiz: quiz,
     });
-    for (const key of Object.keys(questions)) {
-      mquiz.questions.push(questions[key]);
-    }
-    if (autocheck) {
-      if (questions) {
-        console.log(refquiz.questions.length);
-        const len = questions.length;
-        const markPerQues = refquiz.marks / refquiz.questions.length;
-        let marks = 0;
-        let j = 0;
-        questions = questions.sort((a, b) =>
-          a.question > b.question ? 1 : -1
-        );
-        console.log(questions);
-        refquiz.questions = refquiz.questions.sort((a, b) =>
-          a.question > b.question ? 1 : -1
-        );
-        console.log("Gets");
-        console.log(refquiz.questions);
-        for (let i = 0; i < len; i++) {
-          if (refquiz.questions[i].myAnswer === questions[i].myAnswer) {
-            marks += markPerQues;
-          }
-        }
-        mquiz.autocheck = autocheck;
-        mquiz.marks = marks;
-      } else {
-        mquiz.marks = 0;
+    if (!checkExist) {
+      let refquiz = await Quiz.findOne({
+        _id: quiz,
+      });
+      let mquiz = new Quiz({
+        course: course,
+        user: req.user.id,
+        title: "My " + title,
+        status: "solved",
+        quiz: quiz,
+      });
+      for (const key of Object.keys(questions)) {
+        mquiz.questions.push(questions[key]);
       }
-    }
+      if (autocheck) {
+        if (questions) {
+          console.log(refquiz.questions.length);
+          const len = questions.length;
+          const markPerQues = refquiz.marks / refquiz.questions.length;
+          let marks = 0;
+          let j = 0;
+          questions = questions.sort((a, b) =>
+            a.question > b.question ? 1 : -1
+          );
+          console.log(questions);
+          refquiz.questions = refquiz.questions.sort((a, b) =>
+            a.question > b.question ? 1 : -1
+          );
+          console.log("Gets");
+          console.log(refquiz.questions);
+          for (let i = 0; i < len; i++) {
+            if (refquiz.questions[i].myAnswer === questions[i].myAnswer) {
+              marks += markPerQues;
+            }
+          }
+          mquiz.autocheck = autocheck;
+          mquiz.marks = marks;
+        } else {
+          mquiz.marks = 0;
+        }
+      }
 
-    await mquiz.save();
-    return res.json(mquiz);
+      await mquiz.save();
+      return res.json(mquiz);
+    }
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -121,33 +125,28 @@ router.post("/findquiz", [auth], async (req, res) => {
 
       return res.json(quiz);
     } else {
-      let quiz = await Quiz.find({
-        $or: [
-          { course: { $in: course }, status: "Accepted" },
-          { user: req.user.id, status: "solved" },
-        ],
+      const getSolved = await Quiz.find({
+        user: req.user.id,
+        status: "solved",
       }).populate("course", ["name"]);
-      if (quiz.length > 0) {
-        const arr = [];
 
-        const solvedQioz = quiz.filter((x) => x.status === "solved");
-
-        if (solvedQioz) {
-          for (let i = 0; i < quiz.length; i++) {
-            const match = solvedQioz.find((x) => x.quiz === quiz[i]._id);
-            if (!match) {
-              arr.push(quiz[i]);
-            }
-          }
-          for (let i = 0; i < solvedQioz.length; i++) {
-            arr.push(solvedQioz[i]);
-          }
-          return res.json(arr);
-        } else {
-          return res.json(quiz);
-        }
+      let arr = [];
+      for (let i = 0; i < getSolved.length; i++) {
+        arr.push(getSolved[i].quiz);
       }
-      return res.json(quiz);
+      const quiz = await Quiz.find({
+        course: { $in: course },
+        status: "Accepted",
+        _id: { $nin: arr },
+      }).populate("course", ["name"]);
+      arr = [];
+      for (let i = 0; i < quiz.length; i++) {
+        arr.push(quiz[i]);
+      }
+      for (let i = 0; i < getSolved.length; i++) {
+        arr.push(getSolved[i]);
+      }
+      return res.json(arr);
     }
   } catch (err) {
     console.error(err.message);
