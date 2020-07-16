@@ -131,6 +131,7 @@ router.post("/findquiz", [auth], async (req, res) => {
         const arr = [];
 
         const solvedQioz = quiz.filter((x) => x.status === "solved");
+        console.log(solvedQioz);
         if (solvedQioz) {
           for (let i = 0; i < quiz.length; i++) {
             if (!solvedQioz.filter((x) => x.quiz === quiz[i]._id)) {
@@ -140,6 +141,7 @@ router.post("/findquiz", [auth], async (req, res) => {
           for (let i = 0; i < solvedQioz.length; i++) {
             arr.push(solvedQioz[i]);
           }
+          return arr;
         } else {
           return res.json(quiz);
         }
