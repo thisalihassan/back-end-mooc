@@ -18,7 +18,7 @@ router.post("/answercomplaints", [auth], async (req, res) => {
 
   try {
     let complaint = await Complaint.findOne({
-      user: req.body.id
+      user: req.body.id,
     });
     if (complaint) {
       complaint = await Complaint.findOneAndUpdate(
