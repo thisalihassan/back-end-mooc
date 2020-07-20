@@ -173,7 +173,7 @@ router.post("/uploadStream", async (req, res) => {
 
       files.lecturefiles.push({
         files: url,
-        fileNames: "Lecture 1",
+        fileNames: "Lecture 1.webm",
         lecture: "Video Broadcast on " + n[0] + " 2020",
       });
       await files.save();
@@ -182,7 +182,7 @@ router.post("/uploadStream", async (req, res) => {
     const le = files.lecturefiles.length + 1;
     files.lecturefiles.push({
       files: url,
-      fileNames: "Lecture " + le,
+      fileNames: "Lecture " + le + ".webm",
       lecture: "Video Broadcast on " + n[0] + " 2020",
     });
     await files.save();
