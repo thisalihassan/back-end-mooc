@@ -14,7 +14,7 @@ const { getData } = require("./gAnalytics");
 const cors = require("cors");
 
 const corsOptions = {
-  Origin: "https://moocfyp.herokuapp.com/",
+  Origin: "http://localhost:5000/",
   "Access-Control-Allow-Headers":
     "Origin, X-Requested-With, Content-Type, Accept",
 };

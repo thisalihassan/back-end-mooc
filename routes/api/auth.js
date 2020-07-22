@@ -268,16 +268,16 @@ router.post("/resend", async (req, res) => {
   try {
     //See if user exists
     User.findOne(
-      { $or: [{ _id: req.body.id }, { _id: req.body.email }] },
+      { $or: [{ _id: req.body.id }, { email: req.body.email }] },
       function (err, user) {
         if (!user)
           return res.status(400).json({
             errors: [{ msg: "We were unable to find a user with that email." }],
           });
-        if (user.isVerified)
-          return res
-            .status(400)
-            .json({ errors: [{ msg: "User is already verified" }] });
+        // if (user.isVerified)
+        //   return res
+        //     .status(400)
+        //     .json({ errors: [{ msg: "User is already verified" }] });
         // Create a verification token, save it, and send email
         var token = new Token({
           _userId: user._id,
@@ -298,7 +298,7 @@ router.post("/resend", async (req, res) => {
               "836527539897-kq0bmenlq2di41hl4jqu9hvsbc2ivrep.apps.googleusercontent.com",
             clientSecret: "yBhlDxp9uPUR9fhA9pfnSsvB",
             refreshToken:
-              "1//04uXNYt2b4UJ5CgYIARAAGAQSNwF-L9IrXL0om-bzMbXvMW8McoVay1XnnTm3WZZQBVCuk7EWkyqzczbHrvCwxqVaxn8DuTQRZOw",
+              "1//04JgSSf6I9ip9CgYIARAAGAQSNwF-L9Irul0rkeuZ41z-bhof-nCVTAYADH8C1ezek2bZnL37AJ0yZwXVXAvTQl4usfb3wI4B2HQ",
           };
           // Send the email
           var transporter = nodemailer.createTransport({
@@ -319,9 +319,11 @@ router.post("/resend", async (req, res) => {
           };
           transporter.sendMail(mailOptions, function (err) {
             if (err) {
+              console.log("niot");
               return res.status(500).send({ msg: err.message });
             }
-            res
+            console.log("send");
+            return res
               .status(200)
               .send(
                 "A verification email has been sent to " + user.email + "."
