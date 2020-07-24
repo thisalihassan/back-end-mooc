@@ -107,7 +107,7 @@ router.delete("/delete/:c_id", async (req, res) => {
     await Anouncement.findOneAndRemove({
       course: req.params.c_id,
     });
-    course = await Courses.findByIdAndRemove({ _id: req.params.c_id });
+    await Courses.findByIdAndRemove({ _id: req.params.c_id });
     return res.json(course);
   } catch (err) {
     console.log("ejhrkjs");
