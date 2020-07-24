@@ -4,18 +4,22 @@ let Schema = mongoose.Schema;
 let complaint = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "user"
+    ref: "user",
   },
   question: {
-    type: String
+    type: String,
   },
   answer: {
-    type: String
+    type: String,
   },
   status: {
     type: String,
-    default: "Pending"
-  }
+    default: "Pending",
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("complaint", complaint);

@@ -61,7 +61,7 @@ router.post("/getComplaints", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    let complaint = await Complaint.find();
+    let complaint = await Complaint.find().sort({ date: -1 });
 
     return res.json(complaint);
   } catch (err) {
