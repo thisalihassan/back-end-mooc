@@ -391,7 +391,10 @@ router.post("/delete", auth, async (req, res) => {
       for (let i = 0; i < course.length; i++) {
         const config = { headers: { "Content-Type": "application/json" } };
         axios.delete(
-          "https://moocback.herokuapp.com/api/Courses/delete/" + course[i]._id,
+          "http://localhost:" +
+            process.env.PORT +
+            "/api/Courses/delete/" +
+            course[i]._id,
           {},
           config
         );
@@ -415,7 +418,10 @@ router.post("/admindelete", auth, async (req, res) => {
       for (let i = 0; i < course.length; i++) {
         const config = { headers: { "Content-Type": "application/json" } };
         axios.delete(
-          "https://moocback.herokuapp.com/api/Courses/delete/" + course[i]._id,
+          "http://localhost:" +
+            process.env.PORT +
+            "/api/Courses/delete/" +
+            course[i]._id,
           {},
           config
         );

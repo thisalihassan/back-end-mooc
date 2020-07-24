@@ -37,7 +37,7 @@ io.on("connect", (socket) => {
       const config = { headers: { "Content-Type": "application/json" } };
       const body = JSON.stringify({ room, Message });
       axios.post(
-        "https://moocback.herokuapp.com/api/message/SendMessage",
+        "http://localhost:" + process.env.PORT + "/api/message/SendMessage",
         body,
         config
       );
@@ -135,7 +135,11 @@ io.on("connect", (socket) => {
     try {
       const config = { headers: { "Content-Type": "application/json" } };
       const body = JSON.stringify({ myroom, id });
-      axios.post("https://moocback.herokuapp.com/api/room/kick", body, config);
+      axios.post(
+        "http://localhost:" + process.env.PORT + "/api/room/kick",
+        body,
+        config
+      );
     } catch (error) {}
     io.to(myroom).emit("roomData", {
       users: getUsersInRoom(myroom),
