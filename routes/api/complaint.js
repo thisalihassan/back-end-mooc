@@ -11,7 +11,7 @@ router.post("/answercomplaints", [auth], async (req, res) => {
   }
   const { question, answer } = req.body;
   const complaintField = {};
-  complaintField.user = req.user.id;
+
   complaintField.status = "Active";
   if (question) complaintField.question = question;
   if (answer) complaintField.answer = answer;
@@ -20,6 +20,7 @@ router.post("/answercomplaints", [auth], async (req, res) => {
     let complaint = await Complaint.findOne({
       _id: req.body.id,
     });
+    complaintField.user = complaint.user;
     if (complaint) {
       complaint = await Complaint.findOneAndUpdate(
         { _id: req.body.id },
@@ -76,7 +77,9 @@ router.post("/getActive", [auth], async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    let complaint = await Complaint.find({ status: "Active" });
+    let complaint = await Complaint.find({ status: "Active" }).sort({
+      date: -1,
+    });
 
     return res.json(complaint);
   } catch (err) {

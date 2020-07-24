@@ -168,9 +168,10 @@ io.on("connection", function (socket) {
   socket.on("new_notification", function (data) {
     try {
       const body = data.body;
+
       const config = { headers: { "Content-Type": "application/json" } };
       axios.post(
-        "https://moocback.herokuapp.com/api/notifications/",
+        "http://localhost:" + process.env.PORT + "/api/notifications/",
         body,
         config
       );
@@ -179,6 +180,7 @@ io.on("connection", function (socket) {
     }
     socket.broadcast.emit("show_notification", {
       follower: data.follower,
+      compuser: data.compuser,
       replyComplaint: data.replyComplaint,
       complaint: data.complaint,
       message: data.message,

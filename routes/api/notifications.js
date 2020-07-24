@@ -48,7 +48,7 @@ router.post("/", async (req, res) => {
     }
     if (complaint) {
       let user = await User.findOne({ roll: "admin" });
-
+      console.log("hereere2 admin");
       let notify = await Notification.findOne({
         user: user._id,
       });
@@ -68,6 +68,7 @@ router.post("/", async (req, res) => {
       let notify = await Notification.findOne({
         user: compuser,
       });
+      console.log("hereere");
       if (notify) {
         let count = notify.counter + 1;
         notify.counter = count;
