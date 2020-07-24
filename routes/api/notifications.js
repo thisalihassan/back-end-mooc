@@ -43,6 +43,9 @@ router.post("/", async (req, res) => {
     if (replyComplaint) {
       notification.complaint = replyComplaint;
     }
+    if (message) {
+      notification.message = message;
+    }
     if (complaint) {
       let user = await User.findOne({ roll: "admin" });
 
@@ -77,9 +80,7 @@ router.post("/", async (req, res) => {
       }
       return res.json(notify);
     }
-    if (message) {
-      notification.message = message;
-    }
+
     if (following) {
       notification.follower = follower;
       let notify = await Notification.findOne({
