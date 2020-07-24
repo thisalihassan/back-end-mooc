@@ -18,11 +18,11 @@ router.post("/answercomplaints", [auth], async (req, res) => {
 
   try {
     let complaint = await Complaint.findOne({
-      user: req.body.id,
+      _id: req.body.id,
     });
     if (complaint) {
       complaint = await Complaint.findOneAndUpdate(
-        { user: req.body.id },
+        { _id: req.body.id },
         { $set: complaintField },
         { new: true }
       );
