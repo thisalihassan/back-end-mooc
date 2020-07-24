@@ -31,6 +31,10 @@ let NotificationSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "complaint",
       },
+      newCourse: {
+        type: Schema.Types.ObjectId,
+        ref: "courses",
+      },
       message: {
         type: String,
       },

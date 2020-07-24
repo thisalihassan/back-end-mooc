@@ -179,6 +179,7 @@ io.on("connection", function (socket) {
       console.log(error);
     }
     socket.broadcast.emit("show_notification", {
+      newCourse: data.newCourse,
       follower: data.follower,
       compuser: data.compuser,
       replyComplaint: data.replyComplaint,
