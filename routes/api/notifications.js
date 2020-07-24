@@ -23,7 +23,7 @@ router.post("/", async (req, res) => {
       follower,
       complaint,
       replyComplaint,
-      user,
+      compuser,
     } = req.body;
     let getUsers = await FollowCourse.findOne({ course: course });
 
@@ -63,7 +63,7 @@ router.post("/", async (req, res) => {
     }
     if (replyComplaint) {
       let notify = await Notification.findOne({
-        user: user,
+        user: compuser,
       });
       if (notify) {
         let count = notify.counter + 1;
@@ -71,7 +71,7 @@ router.post("/", async (req, res) => {
         notify.notification.unshift(notification);
         await notify.save();
       } else {
-        notify = new Notification({ user: user });
+        notify = new Notification({ user: compuser });
         notify.notification.push(notification);
         await notify.save();
       }
