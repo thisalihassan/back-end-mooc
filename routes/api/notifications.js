@@ -25,7 +25,7 @@ router.post("/", async (req, res) => {
       replyComplaint,
       compuser,
       newCourse,
-      newCourseReq,
+      newCourseRes,
     } = req.body;
     let getUsers = await FollowCourse.findOne({ course: course });
 
@@ -33,8 +33,8 @@ router.post("/", async (req, res) => {
     if (quiz) {
       notification.quiz = quiz;
     }
-    if (newCourse || newCourseReq) {
-      notification.newCourse = newCourse || newCourseReq;
+    if (newCourse || newCourseRes) {
+      notification.newCourse = newCourse || newCourseRes;
     }
     if (complaint) {
       notification.complaint = complaint;
@@ -69,7 +69,7 @@ router.post("/", async (req, res) => {
       }
       return res.json(notify);
     }
-    if (replyComplaint || newCourseReq) {
+    if (replyComplaint || newCourseRes) {
       let notify = await Notification.findOne({
         user: compuser,
       });
