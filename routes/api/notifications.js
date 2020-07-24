@@ -4,6 +4,7 @@ const Notification = require("../../models/Notification");
 const { validationResult } = require("express-validator");
 const auth = require("../../middleware/auth");
 const FollowCourse = require("../../models/CourseFollower");
+const User = require("../../models/Users");
 const e = require("express");
 router.post("/", async (req, res) => {
   const errors = validationResult(req);
@@ -20,6 +21,9 @@ router.post("/", async (req, res) => {
       message,
       following,
       follower,
+      complaint,
+      replyComplaint,
+      user,
     } = req.body;
     let getUsers = await FollowCourse.findOne({ course: course });
 
@@ -27,13 +31,52 @@ router.post("/", async (req, res) => {
     if (quiz) {
       notification.quiz = quiz;
     }
+    if (complaint) {
+      notification.complaint = complaint;
+    }
     if (assignment) {
       notification.assignment = assignment;
     }
     if (anouncements) {
       notification.anouncements = anouncements;
     }
+    if (replyComplaint) {
+      notification.complaint = replyComplaint;
+    }
+    if (complaint) {
+      let user = await User.findOne({ roll: "admin" });
 
+      let notify = await Notification.findOne({
+        user: user._id,
+      });
+      if (notify) {
+        let count = notify.counter + 1;
+        notify.counter = count;
+        notify.notification.unshift(notification);
+        await notify.save();
+      } else {
+        notify = new Notification({ user: user._id });
+        notify.notification.push(notification);
+        await notify.save();
+      }
+      return res.json(notify);
+    }
+    if (replyComplaint) {
+      let notify = await Notification.findOne({
+        user: user,
+      });
+      if (notify) {
+        let count = notify.counter + 1;
+        notify.counter = count;
+        notify.notification.unshift(notification);
+        await notify.save();
+      } else {
+        notify = new Notification({ user: user });
+        notify.notification.push(notification);
+        await notify.save();
+      }
+      return res.json(notify);
+    }
     if (message) {
       notification.message = message;
     }

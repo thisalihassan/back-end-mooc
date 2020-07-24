@@ -179,6 +179,8 @@ io.on("connection", function (socket) {
     }
     socket.broadcast.emit("show_notification", {
       follower: data.follower,
+      replyComplaint: data.replyComplaint,
+      complaint: data.complaint,
       message: data.message,
       anouncements: data.anouncements,
       user: data.user,

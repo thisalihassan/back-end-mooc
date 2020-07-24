@@ -10,6 +10,7 @@ let NotificationSchema = new Schema({
   notification: [
     {
       follower: { type: Schema.Types.ObjectId, ref: "user" },
+
       mycourse: {
         type: Schema.Types.ObjectId,
         ref: "courses",
@@ -25,6 +26,10 @@ let NotificationSchema = new Schema({
       assignment: {
         type: Schema.Types.ObjectId,
         ref: "Assignment",
+      },
+      complaint: {
+        type: Schema.Types.ObjectId,
+        ref: "complaint",
       },
       message: {
         type: String,
