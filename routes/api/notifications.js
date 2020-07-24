@@ -86,7 +86,28 @@ router.post("/", async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+router.post("/setCounter", auth, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
+  try {
+    let notify = await Notification.findOne({
+      user: req.user.id,
+    });
+
+    if (notify) {
+      notify.counter = 0;
+      await notify.save();
+      return res.json("notify");
+    }
+    return res.json(false);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
+  }
+});
 router.post("/getNotification", auth, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
