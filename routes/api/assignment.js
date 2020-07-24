@@ -167,11 +167,11 @@ router.post("/getsubassignment/:id", [auth], async (req, res) => {
   }
 
   try {
-    let assign = await Assignment.findOne({
+    let assignn = await Assignment.findOne({
       "assignment._id": req.params.id,
     }).populate("course", ["name"]);
-    const course = assign.course;
-    assign = await Assignment.findOne({
+    const course = assignn.course;
+    let assign = await Assignment.findOne({
       "assignment._id": req.params.id,
     })
       .select({
@@ -182,10 +182,7 @@ router.post("/getsubassignment/:id", [auth], async (req, res) => {
         },
       })
       .populate("submitassignment.user", ["name", "avatar"]);
-    return res.json({
-      assign: assign,
-      course: course,
-    });
+    return res.json({ assignn: assignn, assign: assign, course: course });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
